@@ -3,23 +3,26 @@
 - **Status:** Proposed
 - **Date:** 2026-06-17 (migrated to Reel 2026-06-22)
 - **Deciders:** labadorf, design session
-- **Related:** ADR-0001 (instruction-path model), Aperture ADR-0020 (provenance events), Aperture ADR-0017 (data plane vs control plane); `instruction-path-model.md` §5; Hippo `docs/data-model.md` (provenance & history, `state_at`); Hippo ADR-0001 (graph-level as-of)
+- **Related:** ADR-0001 (instruction-path model), Aperture ADR-0020 (provenance events), Aperture ADR-0017 (data plane vs control plane); `instruction-path-model.md` §5; Mosaic `docs/data-model.md` (provenance & history, `state_at`); Mosaic ADR-0001 (graph-level as-of)
 
 > **Migrated from Aperture ADR-0023 (2026-06-22)** on the data-story-engine split
-> (`drylims:proposals/reel-split.md`). Renumbered 0023 → Reel 0002. Portal-decision references
+> (boundary decision `datahelix:platform/design/decisions/ADR-0003`, whose **Outcome** section
+> records the execution). Renumbered 0023 → Reel 0002. Portal-decision references
 > are qualified **"Aperture ADR-NNNN"**; bare `ADR-NNNN` refers to Reel's own ADRs.
+> **Names updated 2026-09-11:** Hippo → **Mosaic** (Mosaic ADR-0004), BASS/drylims → **DataHelix**;
+> data-contract identifiers (e.g. `hippoSchema`, `hippo_core`) deliberately keep their spelling.
 
 ## Context
 
 A data story is a narrative artifact people share, revisit, and cite. **It must tell the same
 story whenever it is rerun** — a story composed today should reproduce identically next month —
 *unless the user explicitly asks to pull in new data*. But the story's instructions query
-**live Hippo**, whose graph grows over time (new ingestions, supersessions). Naïve replay
+**live Mosaic**, whose graph grows over time (new ingestions, supersessions). Naïve replay
 ("re-run the queries") would silently change artifacts as data lands, destroying reproducibility
 and trust. This is the one way the parametric-CAD analogy breaks: CAD recompute is deterministic;
 querying a moving database is not.
 
-Hippo already provides the substrate: no hard deletes; an append-only provenance log with
+Mosaic already provides the substrate: no hard deletes; an append-only provenance log with
 `state_snapshot` + `previous_state_hash`; per-entity as-of reconstruction (`client.state_at`);
 and `schema_version` derived from the provenance log (so the *type system* as-of T is recoverable
 too).
@@ -36,10 +39,10 @@ it runs.
 recorded, rewindable provenance event. One watermark per story-version — a single story never
 mixes data from multiple times.
 
-To make recompute-on-edit efficient and to mirror Hippo's own design, **instruction nodes are
+To make recompute-on-edit efficient and to mirror Mosaic's own design, **instruction nodes are
 content-addressed**: a node's identity is `hash(op, parent-hashes, watermark)`, so editing an
 instruction recomputes only reachable descendants whose hash changed; unchanged branches are
-reused (the same idea as Hippo's `previous_state_hash`).
+reused (the same idea as Mosaic's `previous_state_hash`).
 
 ## Consequences
 
@@ -48,11 +51,11 @@ reused (the same idea as Hippo's `previous_state_hash`).
   current data" is an explicit, audited action.
 - **Forces State to stay intensional** (ADR-0001): you can only replay-as-of-T if the State is a
   spec re-evaluated against the graph, not a frozen bag of objects.
-- **Depends on a Hippo platform capability: graph-level / query-spanning as-of** — "evaluate this
+- **Depends on a Mosaic platform capability: graph-level / query-spanning as-of** — "evaluate this
   whole subgraph query as the graph stood at T," resolving every entity, relationship, and schema
-  version to T, over the transport Reel uses. Hippo today exposes this only **per entity**
+  version to T, over the transport Reel uses. Mosaic today exposes this only **per entity**
   (`state_at`) and not on the GraphQL surface (equality-filter + additive-only). The substrate
-  exists in the provenance log; the query-spanning resolver is a build (filed as Hippo ADR-0001 /
+  exists in the provenance log; the query-spanning resolver is a build (filed as Mosaic ADR-0001 /
   graph-level as-of). This extends the `vision.md` invariant to "typed, introspectable,
   dry-run-validatable, provenance-tracked — **and time-travelable**."
 - Content-addressing gives free memoized recompute and aligns the instruction graph with the
@@ -71,5 +74,26 @@ reused (the same idea as Hippo's `previous_state_hash`).
 
 ## Notes / open sub-questions
 
-- Depends on **Hippo graph-level as-of query**, which is a Hippo spec item (Hippo ADR-0001);
-  this ADR cannot be ratified until that capability is on Hippo's roadmap.
+- Depends on **Mosaic graph-level as-of query**, which is a Mosaic spec item (Mosaic ADR-0001);
+  this ADR cannot be ratified until that capability is on Mosaic's roadmap.
+
+### Status update (2026-09-11) — the Mosaic dependency is Accepted and partly built
+
+- **Mosaic ADR-0001 (graph-level / query-spanning as-of) is `Accepted`** — ratified 2026-06-17,
+  the same day this ADR was authored, so the "cannot be ratified until on Mosaic's roadmap"
+  blocker above is cleared. Its design is Mosaic `sec6 §6.8`; implementation is staged in five
+  increments and in progress (Mosaic `design/INDEX.md`).
+- **What is live today:** `asOf` is an additive parameter on Mosaic's GraphQL reads and a field of
+  the QuerySpec artifact (Aperture ADR-0035; Mosaic's `query_spec.py` validator accepts it) —
+  with **one hard constraint**: `asOf` is **not combinable with a relationship predicate**
+  (`RelatedCondition`) on the same query until Mosaic's temporal join ("M5a") lands. A v1 story
+  whose path contains an `exists-related-filter` therefore cannot yet pin a watermark; the
+  validator rejects the combination with a coded error rather than answering wrongly.
+- **The prototype makes no reproducibility promise.** Exon's conversational contract
+  (`mosaic-demo-small` `add-exon-conversational-contract/design.md`, Decision 6) re-runs anchor
+  pivots "fresh against current data" and states the graph-level resolver gap as a non-goal.
+  Watermark pinning per story-version is therefore the **first capability Reel adds** over the
+  migrated prototype — see `../../proposals/exon-migration.md` (delta D2).
+- **Content-addressed nodes are not in the prototype.** Exon's turn `id`s are opaque, not
+  `hash(op, parent-hashes, watermark)`; this is a migration delta, not a contract change (the
+  wire `id` stays opaque to callers).

@@ -1,0 +1,23 @@
+# Editor / OS
+.obsidian/
+.DS_Store
+.idea/
+.vscode/
+
+# Python (for the planned src/reel package)
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Local secrets / provider credentials — never commit
+.env
+.env.*

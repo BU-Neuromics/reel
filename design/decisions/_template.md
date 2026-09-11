@@ -4,7 +4,7 @@
 - **Date:** YYYY-MM-DD (date of last status change)
 - **Deciders:** <who ratified — e.g. labadorf, design session>
 - **Supersedes / Superseded by:** ADR-NNNN (omit if none)
-- **Related:** ADR-NNNN, handoff §N, open-questions QN (omit if none)
+- **Related:** ADR-NNNN, Aperture ADR-NNNN, Mosaic ADR-NNNN, platform ADR-NNNN, design doc §N (omit if none)
 
 ## Context
 
@@ -14,7 +14,7 @@ to understand *why this was even a decision*.
 
 ## Decision
 
-The choice, stated as a directive ("Aperture will …"). If `Proposed`, this is the
+The choice, stated as a directive ("Reel will …"). If `Proposed`, this is the
 *recommended* resolution to pressure-test. One decision per ADR.
 
 ## Consequences

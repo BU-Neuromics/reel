@@ -1,17 +1,22 @@
 # Reel — The Instruction-Path Model (the data-story substrate)
 
 > **Migrated from Aperture (2026-06-22).** This doc was authored inside Aperture and moved to
-> Reel when the data-story engine was split out ([`platform/design/decisions/ADR-0001`] in
-> `drylims`; runbook `proposals/reel-split.md`). Its decisions D-1/D-2/D-3/D-5 are now Reel
+> Reel when the data-story engine was split out (DataHelix platform
+> [ADR-0003](https://github.com/BU-Neuromics/datahelix/blob/main/platform/design/decisions/ADR-0003-reel-data-story-engine-separate-from-portal.md),
+> whose **Outcome** section records the execution). Its decisions D-1/D-2/D-3/D-5 are now Reel
 > **ADR-0001–0004** (renumbered from Aperture ADR-0022–0025). References to the *portal's*
-> decisions are qualified **"Aperture ADR-NNNN"**.
+> decisions are qualified **"Aperture ADR-NNNN"**; Mosaic's as **"Mosaic ADR-NNNN"**.
+> **Names updated 2026-09-11:** Hippo → **Mosaic** (Mosaic ADR-0004), BASS/drylims → **DataHelix**;
+> `hippoSchema`-style data-contract identifiers keep their spelling. Dated **2026-09 status**
+> notes mark where the platform has since moved; see [`platform-alignment.md`](./platform-alignment.md).
 
-**Status:** 🟠 Working design (2026-06-17, migrated 2026-06-22). The formal model **underneath**
+**Status:** 🟠 Working design (2026-06-17, migrated 2026-06-22, platform state refreshed
+2026-09-11). The formal model **underneath**
 [`prefab/data-stories.md`](./prefab/data-stories.md): what a "data story" *is* as a data
 structure, independent of any particular UI. Where `data-stories.md` is the keystone MVP
-(linear, conversational, Hippo-only), this doc is the general structure that MVP is a narrow
+(linear, conversational, Mosaic-only), this doc is the general structure that MVP is a narrow
 slice of. Companion to [`vision.md`](./vision.md) and the platform
-[domain-graph model](../../platform/design/domain-graph.md).
+[domain-graph model](https://github.com/BU-Neuromics/datahelix/blob/main/platform/design/domain-graph.md).
 
 ## Why this exists
 
@@ -39,7 +44,7 @@ artifacts = the renderings produced along the way
 | **`Instruction`** | A first-class, **source-tagged** event (a chat turn, a UI event, an agent action). Expands to one or more nested, sequential typed **ops** (think tool calls). The unit of rewind. |
 | **`State`** | A typed **subgraph specification** — the selection/predicates that *denote* a subgraph of `Entity`/`Relationship` instances (see §2). Intensional, data-light, replayable. |
 | **`Artifact`** | The **materialization** of work as-of the story's timestamp: an evaluated subgraph (entities + relationships) or a rendered view primitive (table, chart, summary). Immutable, provenance-stamped, cached. |
-| **`DataStory`** | The persisted container: an ordered/linked set of `Instruction`s, a single as-of watermark, and the materialized `Artifact`s. Itself a LinkML artifact stored in Hippo (Aperture ADR-0003). |
+| **`DataStory`** | The persisted container: an ordered/linked set of `Instruction`s, a single as-of watermark, and the materialized `Artifact`s. Itself a LinkML artifact stored in Mosaic (Aperture ADR-0003) — concretely, a control-plane document kind per Aperture ADR-0032 (versioned `{kind, name, payload}` with `owner`/`visibility`). |
 
 This formalizes `data-stories.md`'s "a data story = a sequence of cohort-states + transforms,
 narrated": the **transforms** are promoted to first-class typed `Instruction`s; the
@@ -50,7 +55,7 @@ narrated": the **transforms** are promoted to first-class typed `Instruction`s; 
 `data-stories.md` framed the evolving selection as a *cohort*. We generalize: a **State is a
 generic subgraph** — a collection of objects that inherit from `Entity`, plus the
 `Relationship`s among them, following the semantics of the LinkML schema. This is the truest
-expression of the platform's [domain-graph model](../../platform/design/domain-graph.md):
+expression of the platform's [domain-graph model](https://github.com/BU-Neuromics/datahelix/blob/main/platform/design/domain-graph.md):
 "every query returns a knowledge subgraph; metadata-vs-data is a query-relative *role*."
 
 A **"cohort" is then a State viewed through a focal lens** — a focal entity type plus its
@@ -60,10 +65,19 @@ underlying subgraph stays generic. The grain-agnostic, re-rootable property from
 
 **Intensional, not extensional (the load-bearing distinction).** A State is stored as the
 **specification** that produces the subgraph (the predicates/selections over types and
-relationships), *not* as the materialized objects. Evaluating that spec against Hippo as-of the
+relationships), *not* as the materialized objects. Evaluating that spec against Mosaic as-of the
 story's watermark (§5) yields the concrete subgraph, which is captured as an `Artifact`. Keeping
 State intensional is what preserves reproducibility and the "re-runnable" property and keeps
 stories small.
+
+**v1 realization (2026-09 status): the State is a QuerySpec.** The platform has since built the
+"single-focal-lens intensional subgraph spec" this section describes, as the **QuerySpec**
+(Aperture ADR-0035, Accepted; Mosaic ADR-0009, Accepted): `anchor` is the focal type, `criteria`
+the predicates (`FieldCondition`, quantified `RelatedCondition`, nested groups), `asOf` the
+watermark. Reel adopts it as the only v1 wire/persisted form of `State`
+([ADR-0006](./decisions/ADR-0006-v1-state-is-the-queryspec.md)); the generic `State` here stays
+the conceptual model. Re-rooting is a new `anchor` with the prior selection re-derived as a
+`RelatedCondition`.
 
 **Deferred — ops over heterogeneous entity types.** Because a State is a generic subgraph, an
 op must know how to operate over *different* `Entity` types within it (filter subjects in the
@@ -93,6 +107,15 @@ Instruction {
   status:  valid | invalid | suspended
 }
 ```
+
+**Wire form (2026-09 status).** The prototype's conversational turn contract
+(`mosaic-demo-small` `add-exon-conversational-contract/design.md` Decision 8) is this
+`Instruction` in miniature: `Turn {id, utterance, status: proposal | clarification | suspended,
+query_spec, message}` with `edit_turn_id` on the request and `suspended_turn_ids` on the
+response. `utterance` = `raw` (source `chat`); `query_spec` = the resulting `State`;
+`clarification` = an instruction that advanced no state. It carries no `parents`, `ops`, or
+`source` yet — those are the migration deltas in
+[ADR-0008](./decisions/ADR-0008-exon-seeds-reel.md) §3.
 
 **Op catalog** (the closed vocabulary, from `data-stories.md`):
 `filter · exists-related-filter · distinct-values · group-by+count · pivot-grain · set-op
@@ -137,12 +160,15 @@ adding the set-op op type*, never a migration.
 ## 5. Reproducibility: one as-of watermark per story
 
 **A data story run today must tell the same story whenever it is rerun** — unless the user
-explicitly asks for new data. We get this from Hippo's existing provenance substrate:
+explicitly asks for new data. We get this from Mosaic's existing provenance substrate:
 
-- Hippo has **no hard deletes**; every change is an append-only provenance event with a
+- Mosaic has **no hard deletes**; every change is an append-only provenance event with a
   `state_snapshot` and `previous_state_hash`; `client.state_at(entity_id, timestamp)` already
   reconstructs an entity as-of T; even `schema_version` is derived from the provenance log
-  (`hippo/docs/data-model.md`). So **both the data and the type system are recoverable as-of T.**
+  (`mosaic/docs/data-model.md`). So **both the data and the type system are recoverable as-of T.**
+  *(2026-09 status: the query-spanning form is **Mosaic ADR-0001**, Accepted, implementation in
+  progress; `asOf` is live on GraphQL and on the QuerySpec but not yet combinable with a
+  relationship predicate.)*
 - A `DataStory` carries **one as-of watermark** (a timestamp). Every query in the story resolves
   against the graph as it stood at that watermark. Replay is therefore identical regardless of
   when it runs.
@@ -153,7 +179,7 @@ explicitly asks for new data. We get this from Hippo's existing provenance subst
 
 **Content-addressed nodes → free memoized recompute.** A node's identity is
 `hash(op, parent-hashes, watermark)`. Editing an instruction recomputes only the reachable
-descendants whose hash changed; unchanged branches are reused. This is the same idea Hippo
+descendants whose hash changed; unchanged branches are reused. This is the same idea Mosaic
 already uses (`previous_state_hash`) — the instruction graph and the provenance graph are the
 same shape for the same reason.
 
@@ -199,7 +225,7 @@ Rungs 2–3 are additive UI + validator relaxations, not rewrites.
 
 ## 8. LinkML sketch (illustrative)
 
-Persists as config-in-Hippo (Aperture ADR-0003); this is a shape sketch, not the final schema.
+Persists as config-in-Mosaic (Aperture ADR-0003); this is a shape sketch, not the final schema.
 
 ```yaml
 classes:
@@ -212,6 +238,7 @@ classes:
                             #         group_by_count, pivot_grain, set_op, render_as_primitive}
   State:                    # a typed subgraph SPECIFICATION (intensional)
     slots: [id, focal_type, predicates, grain]   # denotes a subgraph of Entity/Relationship
+                            # v1: realized as one QuerySpec (anchor/criteria/asOf) — ADR-0006
   Artifact:                 # materialization as-of the watermark (extensional, cached)
     slots: [id, of_state, kind, data_version, payload_ref]
 slots:
@@ -222,9 +249,17 @@ slots:
 `State` ranges over the deployment's LinkML domain schema — every domain object inherits from
 `Entity`, every link is a `Relationship`. Reel adds **no** domain nouns (inheriting Aperture ADR-0002).
 
-## 9. New platform requirement this surfaces
+## 9. New platform requirement this surfaces → Mosaic ADR-0001 (Accepted)
 
-Hippo today exposes as-of reconstruction **per entity** (`state_at`). A data story needs
+> **2026-09 status.** This requirement was filed and **accepted the same day** as
+> **Mosaic ADR-0001 — Graph-level / query-spanning as-of reconstruction** (2026-06-17; design in
+> Mosaic `sec6 §6.8`; five implementation increments, in progress). What is live: an additive
+> `asOf` on Mosaic's GraphQL reads and on the QuerySpec (validated by Mosaic's `query_spec.py`),
+> with one constraint — **`asOf` cannot combine with a `RelatedCondition`** until Mosaic's
+> temporal join (M5a) lands; the validator rejects the combination with a coded error. The
+> paragraph below is preserved as the requirement's origin.
+
+Mosaic at the time exposed as-of reconstruction **per entity** (`state_at`). A data story needs
 **graph-level / query-spanning as-of**: "evaluate this whole subgraph query as the graph stood
 at T," resolving every entity, relationship, *and* schema version to T transparently — and over
 the transport Aperture uses (not yet on the GraphQL surface, which is equality-filter +
@@ -235,8 +270,11 @@ time-travelable** — declarative representation.
 
 ## 10. Open decisions (recorded as ADRs)
 
-All four data-story decisions are now `Proposed` Reel ADRs in [`decisions/`](./decisions/), behind
-the still-`Proposed` keystone Aperture ADR-0010 (ratify after the keystone probe runs):
+All four data-story decisions are `Proposed` Reel ADRs in [`decisions/`](./decisions/). They were
+gated on the keystone probe; **the probe has run** (as Exon, 2026-08 →; see
+[`platform-alignment.md`](./platform-alignment.md) "Keystone probe") and the model held, so
+ratification is now a status flip in the INDEX Decision Queue. Aperture ADR-0010 (view
+noun-catalog) remains `Proposed` but is no longer on this model's critical path:
 
 - **D-1 → [ADR-0001](./decisions/ADR-0001-data-story-is-an-instruction-path.md)** — a data story
   is an instruction path → typed subgraph states + artifacts. The model in this doc.
@@ -247,8 +285,17 @@ the still-`Proposed` keystone Aperture ADR-0010 (ratify after the keystone probe
   general `parents`-list schema now, linear-only validator in v1 (§4 discipline).
 - **D-5 → [ADR-0004](./decisions/ADR-0004-mid-path-edit-recompute-with-suspend.md)** —
   recompute-with-suspend (not discard) on mid-path edit (§6).
-- **D-4 — Hippo graph-level as-of query** (§9). → a **Hippo** requirement/spec item, not an
-  Aperture ADR; referenced by ADR-0002, to be filed against Hippo.
+- **D-4 — Mosaic graph-level as-of query** (§9). → **Mosaic ADR-0001**, Accepted 2026-06-17;
+  implementation in progress. Referenced by ADR-0002.
+
+Decisions recorded since (2026-09-11), on the platform state this doc predates:
+
+- **[ADR-0006](./decisions/ADR-0006-v1-state-is-the-queryspec.md)** — v1 `State` is the
+  QuerySpec; the op catalog binds to QuerySpec fields and Mosaic boundary tools (§2, §3, §8).
+- **[ADR-0007](./decisions/ADR-0007-reel-delegates-to-the-mosaic-boundary.md)** — Reel plans;
+  Mosaic's MCP boundary validates and executes; Reel is a planner behind Mosaic's validating relay.
+- **[ADR-0008](./decisions/ADR-0008-exon-seeds-reel.md)** — Exon seeds Reel; its turn contract is
+  the v1 wire form of `Instruction` (§3); migration deltas D1–D5.
 
 ## 11. Explicitly deferred
 

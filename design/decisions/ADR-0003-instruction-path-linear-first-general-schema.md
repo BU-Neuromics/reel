@@ -6,8 +6,11 @@
 - **Related:** ADR-0001 (instruction-path model), Aperture ADR-0009 (dry-run validation), Aperture ADR-0021 (defer in-app chat; linear MVP first); `instruction-path-model.md` §4, §7
 
 > **Migrated from Aperture ADR-0024 (2026-06-22)** on the data-story-engine split
-> (`drylims:proposals/reel-split.md`). Renumbered 0024 → Reel 0003. Portal-decision references
+> (boundary decision `datahelix:platform/design/decisions/ADR-0003`, whose **Outcome** section
+> records the execution). Renumbered 0024 → Reel 0003. Portal-decision references
 > are qualified **"Aperture ADR-NNNN"**; bare `ADR-NNNN` refers to Reel's own ADRs.
+> **Names updated 2026-09-11:** Hippo → **Mosaic** (Mosaic ADR-0004), BASS/drylims → **DataHelix**;
+> data-contract identifiers (e.g. `hippoSchema`, `hippo_core`) deliberately keep their spelling.
 
 ## Context
 
@@ -65,3 +68,16 @@ mode** (set-op convergence only, no freeform branching) → **(3) full DAG story
 
 - Whether the **cohort-assembly mode (rung 2)** should precede generic branching is left open;
   the heterogeneous-filtering use case is valuable enough that it plausibly jumps the queue.
+
+### Status update (2026-09-11)
+
+- **Reciprocal reference recorded.** Aperture ADR-0035 (Accepted 2026-08-19) cites this ADR as
+  the reason it *rejects arbitrary join semantics*: quantified relationship criteria
+  (`RelatedCondition {edge, quantifier: some|none, criteria}`) and an **explicit** per-column
+  `aggregate`-vs-`explode` choice on to-many paths (≙ this ADR's grain discipline) are the
+  sanctioned mechanisms. `set-op` between States stays Reel's, deferred as here.
+- **The prototype is linear-only, as v1 prescribes** — but its wire form carries an *ordered
+  `turns` list* with an implicit single parent, not a persisted `parents` list. Adopting the
+  general schema (list-of-parents, ≤1 enforced) is a **migration delta** the translation layer
+  owns (Reel [ADR-0008](./ADR-0008-exon-seeds-reel.md); `../../proposals/exon-migration.md`
+  delta D1) — exactly the "general schema now, narrow validator now" rule this ADR sets.
