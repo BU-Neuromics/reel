@@ -50,7 +50,7 @@ own.** Concretely:
    | `exists-related-filter` | `RelatedCondition {edge, quantifier: some\|none, criteria}` | built (prototype) |
    | `distinct-values` | Mosaic `facet_query_spec` over the current State (Mosaic ADR-0007; mosaic#195) | server tool live; not yet routed |
    | `group-by+count` | Mosaic `count_query_spec` / `facet_query_spec` | server tool live; not yet routed |
-   | `pivot-grain` | a new `anchor` with the prior State re-derived as a `RelatedCondition` (the prototype's Decision 6), or an explicit `explode` | unbuilt |
+   | `pivot-grain` | a new `anchor` with the prior State re-derived as a `RelatedCondition` (the prototype's Decision 6), or an explicit `explode` | **blocked** — needs reverse-edge traversal ([mosaic#204](https://github.com/BU-Neuromics/mosaic/issues/204)) |
    | `set-op` | between States — Reel's own; **deferred** (ADR-0003) | unbuilt |
    | `render-as-primitive` | a View Contract instance bound to the State's result (ADR-0005) | unbuilt |
 
@@ -102,5 +102,11 @@ own.** Concretely:
 - Whether `render-as-primitive` should carry a `QuerySpec` reference inside the View Contract's
   `provenance` block (so a rendered artifact points back at the State that produced it) is a
   View Contract design-pass question (`datahelix:platform/design/view-contract.md`).
+- **`pivot-grain` is blocked on reverse-edge traversal** ([mosaic#204](https://github.com/BU-Neuromics/mosaic/issues/204),
+  2026-09-11): `RelatedCondition.edge` can only name a reference the anchor itself holds, so
+  "the donors of those samples" (Donor ← Sample.donor) is inexpressible today; the proposed fix
+  is LinkML `inverse:`-declared slots as computed/virtual fields, resolved through the forward
+  slot. Reel takes no position on the mechanism; it needs the *edge* to be nameable and
+  validated server-side (ADR-0007), since Mosaic's relay re-validates every turn.
 - Polymorphic `is_a` anchors (Aperture ADR-0035 notes) will surface here as soon as a story
   pivots across a class hierarchy; no Reel position yet.

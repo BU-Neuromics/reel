@@ -154,6 +154,7 @@ that need no model.
 | Empty `RelatedCondition.criteria` validates clean and matches everything | Phase 2 finding 2.5d | grade as failure; consider a planner-side guard |
 | Determinism ceiling at `temperature=1` on some provider/model pairs | Sonnet 5 via Bedrock: 40 % | measured, not tunable — report it |
 | No reproducibility promise | Exon Decision 6 | D2 above |
+| Anchor pivots over a reverse edge ("the donors of those samples") are inexpressible — `RelatedCondition.edge` is forward-only | [mosaic#204](https://github.com/BU-Neuromics/mosaic/issues/204) (blocks `add-aperture-chat-panel` Phase 2 in the demo repo) | Mosaic-side: `inverse:` slots as virtual fields; Reel's `pivot-grain` op waits on it (ADR-0006) |
 | Endpoint unauthenticated; no per-turn cost accounting | Mosaic ADR-0010 follow-ups E1–E3 | Reel's once it hosts the planner (ADR-0007 §5) |
 
 ## 5. Explicitly out of scope for the migration
