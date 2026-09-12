@@ -3,23 +3,26 @@
 - **Status:** Proposed
 - **Date:** 2026-06-22
 - **Deciders:** labadorf, design session
-- **Related:** reframes Aperture ADR-0014 (application architecture); depends on Aperture ADR-0008 (injected capability-scoped client), Aperture ADR-0009 (view-descriptions, not DOM), Aperture ADR-0017 (data plane / control-plane port), ADR-0001 (instruction-path model); informs Aperture ADR-0011 (component runtime), Aperture ADR-0015 (composability); `vision.md`; Aperture `architecture.md`; `drylims:platform/design/view-contract.md`
+- **Related:** reframes Aperture ADR-0014 (application architecture); depends on Aperture ADR-0008 (injected capability-scoped client), Aperture ADR-0009 (view-descriptions, not DOM), Aperture ADR-0017 (data plane / control-plane port), ADR-0001 (instruction-path model); informs Aperture ADR-0011 (component runtime), Aperture ADR-0015 (composability); `vision.md`; Aperture `architecture.md`; `datahelix:platform/design/view-contract.md`
 
 > **Migrated from Aperture ADR-0026 (2026-06-22)** on the data-story-engine split
-> (`drylims:proposals/reel-split.md`; boundary `drylims:platform/design/decisions/ADR-0001`).
+> (boundary decision `datahelix:platform/design/decisions/ADR-0003`, whose **Outcome** section
+> records the execution).
 > Renumbered 0026 → Reel 0005. **Post-split reframing:** this ADR was authored while the engine
 > still lived inside Aperture; it now describes **Reel** as the headless core. The core↔shell
 > seam it argues for is realized across the split as **Reel (headless producer) → the View
 > Contract → a renderer** (the Aperture portal, a notebook, or a third-party shell). The
 > renderer/shell injection seam (#3 below) is the **View Contract**
-> (`drylims:platform/design/view-contract.md`); platform ADR-0001 is the more-decoupled,
+> (`datahelix:platform/design/view-contract.md`); platform ADR-0001 is the more-decoupled,
 > cross-component form of this decision. References to the *portal's* decisions are qualified
 > **"Aperture ADR-NNNN"**; bare `ADR-NNNN` refers to Reel's own ADRs.
+> **Names updated 2026-09-11:** Hippo → **Mosaic** (Mosaic ADR-0004), BASS/drylims → **DataHelix**;
+> data-contract identifiers (e.g. `hippoSchema`, `hippo_core`) deliberately keep their spelling.
 
 ## Context
 
 The 2026-06-17 reframe (`vision.md`) replaced the product framing: the AI-native surface over the
-BASS domain graph is an **interaction layer**, not a rendered config-driven portal (the portal is
+DataHelix domain graph is an **interaction layer**, not a rendered config-driven portal (the portal is
 its substrate/MVP). But the application-architecture decision (Aperture ADR-0014) still asks the
 *portal* question — "server-rendered vs. client-side **app shell**" — as though a rendered UI is
 the product. It is not: the near-term agent surface is an **external MCP coding agent** with no
@@ -55,7 +58,7 @@ application is one ordinary consumer of it.**
 - the **instruction-path engine** — `state[n] = apply(instruction[n], state[n-1])` over the typed
   op catalog (ADR-0001/0003), deterministic and as-of-pinned (ADR-0002);
 - the **view-description / View Contract types + headless validators** (Aperture ADR-0009/0010;
-  `drylims:platform/design/view-contract.md`) — the engine's output is serializable
+  `datahelix:platform/design/view-contract.md`) — the engine's output is serializable
   descriptions + attached data, never pixels;
 - the **component runtime** (Aperture ADR-0011) — Web Worker, view-spec-emitting;
 - the **data-plane source adapter** behind the **injected capability-scoped client**
@@ -74,7 +77,7 @@ new, each already a decision:
 1. **The capability-scoped client (Aperture ADR-0008)** — the host injects auth/data access; Reel
    stays auth-unaware.
 2. **The control-plane store port (Aperture ADR-0017)** — the host may supply config/state
-   persistence, or accept the LinkML-on-Hippo reference impl.
+   persistence, or accept the LinkML-on-Mosaic reference impl.
 3. **The renderer/shell, via the View Contract** — the host either mounts a default shell as a
    component or consumes View Contract instances and renders them in its own shell (down to a
    single `DataStory` or view artifact).
@@ -137,6 +140,34 @@ MCP agent, or the headless validators.
   (framework-agnostic, e.g. web components) or part of the shell? Leaning: the renderer is a
   framework-neutral artifact; the *shell* is only routing/nav/layout/theming. Settle in the
   framework ADR.
-- Relationship to the **default control-plane**: embedding hosts that decline LinkML-on-Hippo need
+- Relationship to the **default control-plane**: embedding hosts that decline LinkML-on-Mosaic need
   the store port surface specified (Aperture ADR-0017 says "port, not dependency" — this makes a
-  host the first non-Hippo consumer to pressure-test it).
+  host the first non-Mosaic consumer to pressure-test it).
+
+### Status update (2026-09-11) — how the seams landed after the split
+
+- **Aperture ADR-0014 was ratified as posed, not rewritten.** With the engine split out, "SSR vs
+  SPA" became purely the *shell's* question, and Aperture answered it: ADR-0014 `Accepted`, then
+  **ADR-0030** (TypeScript SPA — React + Vite + urql; TanStack Table + nuqs) and **ADR-0031**
+  (app shell = a library of config-selected fixed layouts with a typed named-slot contract). The
+  consequence "the framework choice is demoted to a shell detail" holds; the consequence "ADR-0014
+  should be superseded/rewritten" is moot — the split *was* the reframing.
+- **Aperture ADR numbering caveat.** Aperture later reused **0026** for "Portal-first MVP; defer
+  agentic surfaces" (Accepted 2026-06-30), so "Aperture ADR-0026" is now ambiguous; cite **this**
+  Reel ADR for the headless-core decision.
+- **The agent surface is hosted by Mosaic, not by Reel or the shell.** The "agent surface
+  (MCP/API, Aperture ADR-0021)" bullet above is realized as **Mosaic ADR-0009** (Mosaic hosts the
+  MCP boundary: capability manifest + QuerySpec validate/execute/count/facet/range/search tools)
+  and **Mosaic ADR-0010** (the boundary may delegate outbound to a planning service as an
+  *untrusted planner behind a validating relay* — "a Reel engine … inherits items 1–7"). Reel's
+  place in that topology is recorded in [ADR-0007](./ADR-0007-reel-delegates-to-the-mosaic-boundary.md).
+- **Seam 1 (capability-scoped client) — auth posture since the split:** DataHelix platform
+  ADR-0006 (recipes authenticate at an OIDC reverse proxy; the PDP stays Bridge's) and Aperture
+  ADR-0038 (Aperture *presents* an identity, never authenticates). Reel stays auth-unaware, as
+  this ADR requires; but Mosaic ADR-0010's Exon-side follow-ups E1–E3 (authenticate the turn
+  endpoint; log per-turn cost against the actor) fall to **whoever hosts the planner** — Reel, on
+  migration (`../../proposals/exon-migration.md`).
+- **The "core public API" follow-on has a first concrete draft:** the prototype's turn contract
+  (request `{utterance, query_spec, turns, edit_turn_id}` → response `{turn, suspended_turn_ids}`)
+  is the v1 wire form of "how a host drives an instruction-path session" —
+  [ADR-0008](./ADR-0008-exon-seeds-reel.md).

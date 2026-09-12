@@ -6,8 +6,11 @@
 - **Related:** ADR-0001 (instruction-path model), ADR-0002 (as-of watermark), Aperture ADR-0009 (dry-run validation), Aperture ADR-0020 (provenance events); `instruction-path-model.md` §6
 
 > **Migrated from Aperture ADR-0025 (2026-06-22)** on the data-story-engine split
-> (`drylims:proposals/reel-split.md`). Renumbered 0025 → Reel 0004. Portal-decision references
+> (boundary decision `datahelix:platform/design/decisions/ADR-0003`, whose **Outcome** section
+> records the execution). Renumbered 0025 → Reel 0004. Portal-decision references
 > are qualified **"Aperture ADR-NNNN"**; bare `ADR-NNNN` refers to Reel's own ADRs.
+> **Names updated 2026-09-11:** Hippo → **Mosaic** (Mosaic ADR-0004), BASS/drylims → **DataHelix**;
+> data-contract identifiers (e.g. `hippoSchema`, `hippo_core`) deliberately keep their spelling.
 
 ## Context
 
@@ -63,3 +66,19 @@ Edits operate at two layers, mirroring the "pull new data" discipline (ADR-0002)
 
 - The narration of a recomputed story (do downstream prose summaries re-generate?) is left to the
   renderer; the model only guarantees the typed ops and artifacts are re-evaluated.
+
+### Status update (2026-09-11) — exercised end to end by the prototype
+
+- **Implemented in the prototype's contract.** Exon's conversational wire contract
+  (`mosaic-demo-small` `add-exon-conversational-contract/design.md`, Decisions 5 and 8) carries
+  an `edit_turn_id` on the request, a `suspended` turn status, and a `suspended_turn_ids` list on
+  the response — this ADR's recompute-with-suspend, in Reel's own vocabulary by design.
+- **The relay side confirms the semantics matter.** Mosaic ADR-0010 term 2 ("every QuerySpec in
+  the response is re-validated, not only the turn just taken") was *widened* (mosaic PR #200)
+  precisely because editing an earlier turn makes the planner recompute the turns that follow —
+  freshly generated specs the deployment has never seen. The validator's second role named above
+  (the regenerate-time gate) is therefore real and hosted in Mosaic.
+- **Not in the prototype:** the **append-only edit-history log** (Exon Decision 7: no
+  conversation persistence — the transcript lives in the caller). Persisting edit provenance is a
+  migration delta (`../../proposals/exon-migration.md` delta D3), pending Aperture ADR-0020's
+  provenance-event model (still `Deferred (MVP)` in Aperture).
