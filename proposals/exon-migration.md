@@ -17,12 +17,12 @@ of the DataHelix `proposals/hippo-split.md` / `proposals/aperture-split.md` runb
 > Reel's vocabulary so that Mosaic's `converse_query_spec` relay (Mosaic ADR-0010) can drive it
 > and Aperture's chat UI can consume it. It is Reel rung 1, running under another name.
 
-## 0. Current state (verified 2026-09-11 against the five repos)
+## 0. Current state (verified 2026-09-11; Reel/Exon rows refreshed 2026-09-21)
 
 | Where | State |
 |---|---|
-| **Reel** (this repo) | Design only. ADR-0001–0005 migrated from Aperture; ADR-0006–0008 added today. No `src/`, no `pyproject.toml`, no CI. |
-| **Exon** — `mosaic-demo-small/exon/` | `planner.py` (legacy `QueryPlan` emitter) **and** `spec_planner.py` (`QuerySpec` emitter, added 2026-09-07 as Phase 2 step 1 of `add-mosaic-mcp-boundary`, grounded in `mosaic://capabilities`); `validator.py`/`executor.py`/`ops.py` (QueryPlan path — scheduled for retirement, Phase 2.4); `harness/` (probe, runner, grading, refine, loop, report/compare; 77 tests, no model calls); `context/` (seed context + template). **No HTTP turn endpoint yet** — `add-exon-conversational-contract` tasks 2.2–2.9 are unchecked. |
+| **Reel** (this repo) | Design only. ADR-0001–0005 migrated from Aperture; ADR-0006–0008 added 2026-09-11. No `src/`, no `pyproject.toml`, no CI. Phase B now split into B-runtime / B-harness (see Phase B). |
+| **Exon** — `mosaic-demo-small/exon/` | `planner.py` (legacy `QueryPlan` emitter) **and** `spec_planner.py` (`QuerySpec` emitter, added 2026-09-07 as Phase 2 step 1 of `add-mosaic-mcp-boundary`, grounded in `mosaic://capabilities`); `validator.py`/`executor.py`/`ops.py` (QueryPlan path — scheduled for retirement, Phase 2.4); `harness/` (probe, runner, grading, refine, loop, report/compare; 77 tests, no model calls); `context/` (seed context + template). **HTTP turn endpoint EXISTS** (`conversational_server.py`) and was exercised end to end through Mosaic's relay on 2026-09-21 — Aperture chat panel → `converseQuerySpec` → Exon → proposal → executed, in a real browser. Supersedes the 2026-09-11 note that said otherwise. Also added since: `add-schema-discovery-for-query-building` — slot descriptions in the grounding, discovery answered as a clarification carrying `resolution: "answered"`, and the edit-cascade scoped to blocking clarifications. All three are in the B-runtime carry-set. |
 | **Exon Phase 2** (`add-mosaic-mcp-boundary/tasks.md`) | 2.1 ✅ boundary verified live; 2.2 ✅ QuerySpec emitter alongside; 2.3–2.7 ☐ (switch to MCP client calls; retire local validator/executor; re-baseline harness on **result equivalence**; docs; spec sync). Task 2.5b was blocked on mosaic#195 (aggregation tools) — those tools (`count_query_spec`, `facet_query_spec`, `field_range_query_spec`, `search_query_spec`) **are now registered** in `mosaic/mcp/server.py`. |
 | **Mosaic** (`v0.13.0` + unreleased) | ADR-0009 Accepted; MCP boundary live with schema/capabilities resources, validate/execute/count/facet/range/search tools, `construct-query-spec` prompt; ADR-0010 Proposed and implemented (`converse_query_spec`, registered only when `MOSAIC_EXON_URL` is set; re-validates every turn; strict envelope; `error` turns). Graph-level `asOf` (ADR-0001, Accepted) partly built — not combinable with relationship predicates. |
 | **Aperture** | ADR-0035 QuerySpec Accepted (client-side `validateQuerySpec()` in `web/src/query/querySpec.ts`; URL-carried `qs` state); no chat UI yet (Phase 3 of the Exon contract, informational). |
@@ -52,16 +52,44 @@ of the DataHelix `proposals/hippo-split.md` / `proposals/aperture-split.md` runb
 
 ## 2. Preconditions (all must hold before Phase B starts)
 
+> **AMENDED 2026-09-21.** Phase B is now two phases (see Phase B). These
+> preconditions gate them differently:
+>
+> | | B-runtime | B-harness |
+> |---|---|---|
+> | **P1** (Exon Phase 2 / task 2.5) | not required — the runtime imports nothing from the retired path | **required** — `grading.py` resolves slots through `validator.py` |
+> | **P2** (turn endpoint proven) | required — **met** | required — met |
+> | **P3** (ADR-0006/7/8 + Mosaic ADR-0010 ratified) | **OPEN — decision needed** | required |
+> | **P4** (ADR-0001–0004 ratified, or explicit decision) | explicit decision available | same |
+> | **P5** (landing site / Phase A) | required — A4/A5/A6 outstanding | required |
+>
+> **P3 is the one live blocker for B-runtime.** ADR-0006, 0007 and 0008 are all
+> 🟡 Proposed in `design/INDEX.md`. Ratifying them is a design judgement, not a
+> mechanical step, so it is not taken here: either flip their status, or record
+> an explicit decision to carry the runtime with them still Proposed (the escape
+> P4 already grants itself, which P3 does not). Until then B-runtime is prepared,
+> not executed.
+
 - [ ] **P1 — Exon Phase 2 complete** in `mosaic-demo-small` (`add-mosaic-mcp-boundary` tasks
       2.3–2.7): the `QueryPlan` path retired, the harness grading on result equivalence with the
       three stale `expect_rejection` cases re-baselined (q32/q33/q34), and the silent-degradation
       class (2.5c) and empty-related-criteria class (2.5d) graded. *Rationale:* migrating an
       in-flight refactor across repos mid-stream loses the before/after the harness exists to
       provide.
-- [ ] **P2 — The conversational turn endpoint exists and is exercised by Mosaic's relay**
+      **Scope narrowed 2026-09-21:** this gates **B-harness only**. The turn-path runtime
+      imports nothing from the retired QueryPlan modules, so nothing about carrying it is
+      "mid-stream" — see the Phase B amendment for the import graph.
+- [x] **P2 — The conversational turn endpoint exists and is exercised by Mosaic's relay**
       (`add-exon-conversational-contract` tasks 2.2–2.7 + at least one live
       Aperture-or-MCP-client → `converse_query_spec` → Exon round trip). *Rationale:* the wire
       contract must be proven in place before its ownership transfers.
+      **MET 2026-09-21.** Aperture's chat panel, in a browser, against a live
+      `mosaic serve --graphql --mcp` with `MOSAIC_EXON_URL` set: a discovery turn named
+      `history_of_rhi`, the follow-up proposed `history_of_rhi eq true`, Mosaic re-validated it
+      (`{"valid": true, "errors": []}`) and executing it returned 50 donors — the number
+      `evals/expected-results.json` has carried for q05 since August. Driven additionally through
+      Aperture's own client functions (`deriveConversationModel` → `buildConverseMutation` →
+      `normalizeConverseResult`), so the introspection-gated path is proven, not just the transport.
 - [ ] **P3 — ADR-0006/0007/0008 ratified** (status flips in `design/INDEX.md`), and Mosaic
       ADR-0010 ratified (ADR-0007 should not lead it).
 - [ ] **P4 — ADR-0001–0004 ratified** on the strength of the probe (they were gated on it), or an
@@ -87,25 +115,86 @@ of the DataHelix `proposals/hippo-split.md` / `proposals/aperture-split.md` runb
 
 ### Phase B — Build the Reel seed from Exon's carry-set
 
+> **AMENDED 2026-09-21: Phase B splits into B-runtime and B-harness.**
+> Authority: `mosaic-demo-small` OpenSpec change `extract-exon-runtime-to-reel`.
+>
+> **Why.** P1's rationale is *"migrating an in-flight refactor across repos
+> mid-stream loses the before/after the harness exists to provide."* That is a
+> claim about the harness, and it is correct about the harness. Phase B being one
+> atomic step is what extends it to the runtime as well.
+>
+> The two halves are already separable in the source. The turn-path runtime
+> imports **nothing** from the retired QueryPlan path — its only tie to
+> `planner.py` is five configuration constants:
+>
+> | Module | Sibling imports |
+> |---|---|
+> | `spec_planner.py` | `planner` (`MAX_ATTEMPTS`, `MAX_TOKENS`, `MODEL`, `REQUEST_TIMEOUT`, `decode_kwargs_for`) |
+> | `conversational_planner.py` | `planner` (same constants), `spec_planner` |
+> | `conversational_orchestrator.py` | `conversational_planner`, `planner` (constants) |
+> | `conversational_server.py` | `conversational_orchestrator` |
+> | `query_router.py` | `planner` (constants), `spec_planner` |
+> | `mosaic_mcp.py`, `schema.py` | none |
+>
+> `harness/grading.py` is the **sole** module coupled to the retired path, via
+> `validator.resolve_field` — the same dependency task 2.4 already names as
+> blocking its own deletion. That dependency is what times the harness's move,
+> and nothing else times the runtime's.
+>
+> The runtime is also fixture-free: the only `evals/` references in those modules
+> are docstrings describing what the MCP capability manifest replaced.
+>
+> **Consequence.** B-runtime proceeds without P1. B-harness still waits for task
+> 2.5, so every rationale P1 states is honoured. Between the two, Reel ships a
+> runtime whose grading lives in the demo repo — accepted deliberately, and
+> bounded by ADR-0008's guarantee that the wire shape does not change.
+
+#### Phase B-runtime — carry the turn path (does NOT require P1)
+
 ```
-# In a scratch checkout of mosaic-demo-small at the Phase-2-complete commit:
 # 1. Carry the planner + grounding.
-exon/spec_planner.py            -> src/reel/planner/spec_planner.py
-exon/schema.py                  -> src/reel/planner/capabilities.py   # manifest loader (MCP resource)
-exon/context/{seed,template}.py -> src/reel/planner/context/
-# 2. Carry the turn function + HTTP endpoint (built under P2).
-exon/<turn module>              -> src/reel/story/turn.py             # (existing QuerySpec|null, turns, utterance, edit_turn_id) -> turn
-exon/<http module>              -> src/reel/serve/http.py             # the relay-facing endpoint
-# 3. Carry the harness as Reel's reliability suite.
-exon/harness/*                  -> src/reel/harness/*
-tests/test_grading.py, test_harness_invariants.py, test_independence.py,
-tests/test_runner_fake.py, test_spec_planner.py -> tests/
-# 4. Do NOT carry: exon/ops.py, validator.py, executor.py, planner.py (QueryPlan path — retired);
-#    schemas/, generate.py, hints.yaml, evals/ (domain-bearing fixtures — stay in the demo repo).
-# 5. Carry the spec deltas as Reel's first OpenSpec specs (renamed exon-* -> reel-*):
+exon/spec_planner.py                  -> src/reel/planner/spec_planner.py
+exon/schema.py                        -> src/reel/planner/capabilities.py   # manifest loader
+exon/mosaic_mcp.py                    -> src/reel/planner/boundary.py       # MCP client to Mosaic
+exon/context/{seed,template}.py       -> src/reel/planner/context/
+# 2. Carry the turn function + HTTP endpoint (both exist as of P2).
+exon/conversational_planner.py        -> src/reel/story/turn.py             # one stateless turn
+exon/conversational_orchestrator.py   -> src/reel/story/conversation.py     # turn-list bookkeeping
+exon/conversational_server.py         -> src/reel/serve/http.py             # the relay-facing endpoint
+# 3. NEW, not a copy: the five constants currently imported from planner.py.
+#    Carrying planner.py to satisfy them would drag the retired QueryPlan
+#    emitter into Reel and undo the split.
+(new)                                 -> src/reel/config.py
+# 4. Carry the runtime's own unit tests.
+tests/test_spec_planner.py, test_conversational_planner.py,
+tests/test_conversational_orchestrator.py, test_conversational_server.py -> tests/
+# 5. Undecided, mechanically clean either way: exon/query_router.py (the
+#    single-shot product surface). Settle at execution.
+# 6. Carry the spec deltas as Reel's first OpenSpec specs (renamed exon-* -> reel-*):
 openspec/changes/add-exon-conversational-contract/specs/exon-conversational-planner/spec.md
-                                -> openspec/specs/reel-conversational-planner/spec.md
-# 6. Rename EXON_* -> REEL_*; update docstrings that name Exon; keep the wire shape byte-for-byte.
+                                      -> openspec/specs/reel-conversational-planner/spec.md
+# 7. Rename EXON_* -> REEL_*; update docstrings that name Exon; keep the wire
+#    shape byte-for-byte.
+```
+
+#### Phase B-harness — carry the reliability suite (REQUIRES P1 / task 2.5)
+
+```
+exon/harness/*                        -> src/reel/harness/*
+tests/test_grading.py, test_harness_invariants.py,
+tests/test_independence.py, test_runner_fake.py                          -> tests/
+# Blocked until task 2.5 re-bases grading onto the QuerySpec shape: grading.py
+# imports validator.resolve_field, so it would arrive unable to grade anything.
+# A6's REEL_EVAL_CASES seam is what lets it read the demo repo's evals/ without
+# copying them.
+```
+
+```
+# NEVER carried, in either phase:
+#   exon/ops.py, validator.py, executor.py, planner.py  (QueryPlan path — task 2.4
+#     deletes them in place)
+#   schemas/, generate.py, hints.yaml, evals/           (domain-bearing fixtures —
+#     stay in the demo repo permanently)
 ```
 
 Then apply the **translation layer** (ADR-0008 §3) in the order that keeps the relay green:
