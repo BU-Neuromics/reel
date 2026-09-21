@@ -23,3 +23,17 @@ def test_the_schema_seam_is_registered():
     # The counterpart to REEL_EVAL_CASES: domain-bound tests read a schema by
     # path instead of this repo carrying one.
     assert reel.TEST_SCHEMA_ENV == "REEL_TEST_SCHEMA"
+
+
+def test_an_empty_env_var_falls_back_to_the_default(monkeypatch):
+    # Container orchestration sets optional variables to empty constantly
+    # (`REEL_MODEL: ${REEL_MODEL:-}`). os.environ.get's default does not cover
+    # that, and an empty model string reaches litellm as "no provider given".
+    from reel.config import _env
+
+    monkeypatch.setenv("REEL_TEST_ONLY", "")
+    assert _env("REEL_TEST_ONLY", "fallback") == "fallback"
+    monkeypatch.setenv("REEL_TEST_ONLY", "   ")
+    assert _env("REEL_TEST_ONLY", "fallback") == "fallback"
+    monkeypatch.setenv("REEL_TEST_ONLY", " real ")
+    assert _env("REEL_TEST_ONLY", "fallback") == "real"

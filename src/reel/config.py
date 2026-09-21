@@ -16,10 +16,24 @@ untouched, and these were never on the wire.
 """
 import os
 
-#: The planning model. litellm-style provider-prefixed string.
-MODEL = os.environ.get("REEL_MODEL", "bedrock/global.anthropic.claude-haiku-4-5-20251001-v1:0")
 
-MAX_TOKENS = int(os.environ.get("REEL_MAX_TOKENS", "8192"))
+def _env(name: str, default: str) -> str:
+    """Read an environment variable, treating empty as unset.
+
+    `os.environ.get(name, default)` returns `""` when the variable is SET to an
+    empty string, which is not the same as absent — and container orchestration
+    sets variables to empty constantly. A compose file passing through an
+    optional `REEL_MODEL: ${REEL_MODEL:-}` handed litellm an empty model string
+    and an error that named no provider at all; the fix belongs here, because
+    every caller would otherwise have to remember it.
+    """
+    return os.environ.get(name, "").strip() or default
+
+
+#: The planning model. litellm-style provider-prefixed string.
+MODEL = _env("REEL_MODEL", "bedrock/global.anthropic.claude-haiku-4-5-20251001-v1:0")
+
+MAX_TOKENS = int(_env("REEL_MAX_TOKENS", "8192"))
 
 #: Ollama's default context window (`num_ctx`) is 4096 tokens *total* (prompt +
 #: completion), independent of `max_tokens` — a "thinking"-capable local model
@@ -29,15 +43,15 @@ MAX_TOKENS = int(os.environ.get("REEL_MAX_TOKENS", "8192"))
 #: once, then failed a 3-attempt run entirely); 32768 succeeded first time.
 #: Only meaningful for ollama providers — passed conditionally below so it is
 #: never sent to a provider that has no such parameter.
-OLLAMA_NUM_CTX = int(os.environ.get("REEL_OLLAMA_NUM_CTX", "32768"))
+OLLAMA_NUM_CTX = int(_env("REEL_OLLAMA_NUM_CTX", "32768"))
 
-MAX_ATTEMPTS = int(os.environ.get("REEL_MAX_ATTEMPTS", "3"))
+MAX_ATTEMPTS = int(_env("REEL_MAX_ATTEMPTS", "3"))
 
 #: A loaded generation on a local model runs for minutes. litellm's default
 #: request timeout cuts it off, and the resulting APIConnectionError is
 #: indistinguishable from a real transport fault unless you know to look — it
 #: silently turned one measurement arm into noise before this was raised.
-REQUEST_TIMEOUT = int(os.environ.get("REEL_REQUEST_TIMEOUT", "1800"))
+REQUEST_TIMEOUT = int(_env("REEL_REQUEST_TIMEOUT", "1800"))
 
 
 def decode_kwargs_for(model: str, decode_kwargs: dict = None) -> dict:
