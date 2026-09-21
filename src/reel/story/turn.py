@@ -55,14 +55,20 @@ TURN_TOOL = {
             "guess and call it a proposal when the ambiguity is real, and never ask a "
             "clarifying question when the instruction was actually clear. "
             "THE THIRD CASE -- SCHEMA DISCOVERY: when the user asks what the data holds "
-            "rather than asking for records (e.g. 'what information do we have on donors "
-            "about toxicology reports?'), they are working out which fields to put IN a "
-            "query. Answer it: emit status='clarification' with "
-            "resolution='answered', and in the message NAME the relevant fields from the "
-            "grounding -- the entity each belongs to, and what its description says it "
-            "holds -- then invite the user to include them. Do NOT refuse it as a "
-            "reference lookup rather than a query refinement, and do NOT anchor a "
-            "query on a field-listing entity type."
+            "rather than asking for records (e.g. 'what do we have on donors about head "
+            "injuries?'), they are working out which fields to put IN a query. "
+            "PREFER A PROPOSAL. If one field clearly answers the question, emit "
+            "status='proposal' filtered on it and say in one sentence what you filtered "
+            "on and what else was close -- the user asked a question and wants DATA, and "
+            "a second turn to get it is worse than a first turn that shows it. Only when "
+            "nothing clearly dominates, or nothing matches at all, emit "
+            "status='clarification' with resolution='answered'. "
+            "KEEP IT SHORT EITHER WAY. Two or three sentences. Name at most three fields, "
+            "in plain language. Do NOT quote the schema's description text verbatim, do "
+            "NOT repeat schema jargon like '(facet)' or 'entity', do NOT use headers or "
+            "nested bullets, and do NOT end with a menu of options -- ask at most one "
+            "short follow-up question. Never refuse the question as a reference lookup, "
+            "and never anchor a query on a field-listing entity type."
         ),
         "parameters": {
             "type": "object",
@@ -180,8 +186,11 @@ DEFAULT_SYSTEM_PROMPT = (
     "constraint just to avoid asking a question. Each field in the manifest below "
     "carries the schema author's own description of what it holds; use those to "
     "resolve what the user is asking for, including when they ask what the data "
-    "holds rather than for records -- that question is how a user works out which "
-    "fields to query, so answer it by naming the fields that bear on it."
+    "holds rather than for records. That question is how a user works out which "
+    "fields to query, so answer it -- and answer it by BUILDING the query when one "
+    "field clearly fits, rather than describing the options and waiting. Write for a "
+    "researcher, not for someone reading the schema: short, plain, no schema jargon, "
+    "no verbatim description text, no menus."
 )
 
 
