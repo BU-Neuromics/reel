@@ -1,6 +1,6 @@
 # ADR-0008: Exon seeds Reel's implementation — migrate the prototype, do not rewrite; its turn contract is the v1 wire form of `Instruction`
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-09-11
 - **Deciders:** labadorf, design session
 - **Related:** ADR-0001–0004 (the model the prototype was deliberately written against), ADR-0006 (v1 State = QuerySpec), ADR-0007 (planner behind Mosaic's relay); `../../proposals/exon-migration.md` (the runbook this ADR authorizes); **`BU-Neuromics/mosaic-demo-small`** — `exon/`, `APERTURE_EXON_CONTRACT.md`, `openspec/changes/add-mosaic-mcp-boundary/` (Phase 2: migrate Exon onto the boundary), `openspec/changes/add-exon-conversational-contract/` (design.md Decision 1 "Exon hosts it now, shaped for Reel to inherit later"; Decision 8, the wire contract); **Mosaic ADR-0009/0010**; Aperture ADR-0035 ("Reel composes instances of it"); DataHelix platform ADR-0002 (`datahelix-<component>` dists, bare imports), platform ADR-0003 (the split), `proposals/hippo-split.md` / `proposals/aperture-split.md` (the migration pattern)
@@ -118,3 +118,7 @@ preconditions in `proposals/exon-migration.md` are met. Until then Exon stays wh
   runbook.
 - Code-history preservation (subtree merge vs. copy with attribution) — low stakes; the
   hippo/aperture splits used copy-with-pointer.
+
+## Ratification
+
+Ratified 2026-09-21. The carry-set is no longer hypothetical: Phase B is split into B-runtime and B-harness on the strength of the prototype's import graph, Phase A's landing site exists (`pyproject.toml`, CI, `src/reel/`), and preconditions P2 and P5 are met. The turn contract this ADR calls the v1 wire form of `Instruction` has been exercised by a real client.

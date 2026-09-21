@@ -1,6 +1,6 @@
 # ADR-0007: Reel plans; Mosaic's MCP boundary validates and executes — Reel is an untrusted planner behind Mosaic's validating relay
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-09-11
 - **Deciders:** labadorf, design session (recommended resolution — records the Reel side of Mosaic ADR-0009 (Accepted) and ADR-0010 (Proposed))
 - **Related:** ADR-0005 (headless core — the "agent surface" and seam-1 bullets), ADR-0006 (v1 State is the QuerySpec), ADR-0008 (Exon seeds Reel — the prototype already sits in this position); **Mosaic ADR-0009** (Mosaic hosts an MCP boundary over a server-derived capability manifest and the QuerySpec artifact; rejects hosting the validator/executor in a planner), **Mosaic ADR-0010** (the boundary may delegate outbound to a planning service, as an untrusted planner behind a validating relay — "any future outbound delegate on this surface (a Reel engine, another planner) inherits items 1–7"), Mosaic `sec8` (inbound auth); **Aperture ADR-0032** (rejects a dedicated control-plane service — why the browser reaches a planner only through Mosaic), Aperture ADR-0009 (headless dry-run validation), Aperture ADR-0021 (agent-first surface); DataHelix platform ADR-0006 (authenticating proxy), `sec6_security_model.md` (Bridge as sole PEP/PDP)
@@ -110,3 +110,7 @@ Mosaic ADR-0010's terms.** Concretely:
   after migration (ADR-0008).
 - Transport for the relay → Reel hop is plain HTTP/JSON today; whether Reel should *also* be an
   MCP server (so a coding agent can drive stories without the relay) is open.
+
+## Ratification
+
+Ratified 2026-09-21, after Mosaic ADR-0010 (its precondition: this ADR must not lead the Mosaic-side terms it records). The arrangement runs: the prototype proposes, Mosaic re-validates in-process, and nothing executes without an explicit user action -- verified end to end through a browser on 2026-09-21.

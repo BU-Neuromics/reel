@@ -1,6 +1,6 @@
 # ADR-0006: Reel's v1 `State` is the platform QuerySpec; Reel composes the query noun, it does not define one
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-09-11
 - **Deciders:** labadorf, design session (recommended resolution — records the Reel side of two Accepted cross-component decisions)
 - **Related:** ADR-0001 (instruction-path model — `State` is an intensional subgraph spec), ADR-0003 (grain discipline; set-ops deferred), ADR-0007 (validation/execution delegated to Mosaic's boundary), ADR-0008 (Exon seeds Reel); **Aperture ADR-0035** (Accepted 2026-08-19 — cross-class queries are a typed `QuerySpec` artifact; "Aperture owns the noun and its execution; Reel composes instances of it"), Aperture ADR-0004 (no middle scripting layer), Aperture ADR-0005 (one typed artifact for humans and LLMs); **Mosaic ADR-0006** (typed GraphQL filter contract), **Mosaic ADR-0007** (aggregation & ordering surface), **Mosaic ADR-0009** (MCP boundary accepts `QuerySpec` as its canonical typed query artifact); `../instruction-path-model.md` §2, §8; `../prefab/data-stories.md` interface #1–#2
@@ -110,3 +110,7 @@ own.** Concretely:
   validated server-side (ADR-0007), since Mosaic's relay re-validates every turn.
 - Polymorphic `is_a` anchors (Aperture ADR-0035 notes) will surface here as soon as a story
   pivots across a class hierarchy; no Reel position yet.
+
+## Ratification
+
+Ratified 2026-09-21. The QuerySpec is live on both sides of the boundary: Mosaic validates and executes it (ADR-0009, Accepted), Aperture carries it in the URL and validates it client-side (Aperture ADR-0035, Accepted), and the prototype emits it conversationally. Reel composing the noun rather than defining one is now observed, not projected.

@@ -59,16 +59,15 @@ of the DataHelix `proposals/hippo-split.md` / `proposals/aperture-split.md` runb
 > |---|---|---|
 > | **P1** (Exon Phase 2 / task 2.5) | not required — the runtime imports nothing from the retired path | **required** — `grading.py` resolves slots through `validator.py` |
 > | **P2** (turn endpoint proven) | required — **met** | required — met |
-> | **P3** (ADR-0006/7/8 + Mosaic ADR-0010 ratified) | **OPEN — decision needed** | required |
+> | **P3** (ADR-0006/7/8 + Mosaic ADR-0010 ratified) | **MET 2026-09-21** | met |
 > | **P4** (ADR-0001–0004 ratified, or explicit decision) | explicit decision available | same |
 > | **P5** (landing site / Phase A) | required — A4/A5/A6 outstanding | required |
 >
-> **P3 is the one live blocker for B-runtime.** ADR-0006, 0007 and 0008 are all
-> 🟡 Proposed in `design/INDEX.md`. Ratifying them is a design judgement, not a
-> mechanical step, so it is not taken here: either flip their status, or record
-> an explicit decision to carry the runtime with them still Proposed (the escape
-> P4 already grants itself, which P3 does not). Until then B-runtime is prepared,
-> not executed.
+> **P3 was the one live blocker for B-runtime; it is met as of 2026-09-21.**
+> Mosaic ADR-0010 was ratified first (its own precondition — ADR-0007 must not
+> lead it), then 0006/0007/0008 here. B-runtime is unblocked. P4's escape clause
+> is not needed: 0001–0004 remain Proposed, and B-runtime proceeds on that basis
+> as P4 expressly allows.
 
 - [ ] **P1 — Exon Phase 2 complete** in `mosaic-demo-small` (`add-mosaic-mcp-boundary` tasks
       2.3–2.7): the `QueryPlan` path retired, the harness grading on result equivalence with the
@@ -90,8 +89,12 @@ of the DataHelix `proposals/hippo-split.md` / `proposals/aperture-split.md` runb
       `evals/expected-results.json` has carried for q05 since August. Driven additionally through
       Aperture's own client functions (`deriveConversationModel` → `buildConverseMutation` →
       `normalizeConverseResult`), so the introspection-gated path is proven, not just the transport.
-- [ ] **P3 — ADR-0006/0007/0008 ratified** (status flips in `design/INDEX.md`), and Mosaic
-      ADR-0010 ratified (ADR-0007 should not lead it).
+- [x] **P3 — ADR-0006/0007/0008 ratified** (status flips in `design/INDEX.md`), and Mosaic
+      ADR-0010 ratified (ADR-0007 should not lead it). **MET 2026-09-21**, in that order: Mosaic
+      ADR-0010 first (`ef49522`), then 0006/0007/0008 here. ADR-0010's own gate — its terms
+      awaiting a design session — was released deliberately rather than satisfied; no session was
+      held, and its Notes say so. Cost amplification is accepted, not mitigated (E4 still
+      deferred).
 - [ ] **P4 — ADR-0001–0004 ratified** on the strength of the probe (they were gated on it), or an
       explicit decision to migrate with them still `Proposed`.
 - [x] **P5 — Landing site ready** (Phase A below complete). **MET 2026-09-21** — A4/A5/A6 landed.
