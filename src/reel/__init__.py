@@ -28,3 +28,10 @@ __version__ = "0.0.0"
 #:
 #: Registered here now; consumed at Phase B-harness.
 EVAL_CASES_ENV = "REEL_EVAL_CASES"
+
+#: Where the ground-truth tests look for a LinkML schema to build a capability
+#: manifest from. Same principle as :data:`EVAL_CASES_ENV`: a schema belongs to
+#: the deployment being described, so Reel reads one by path rather than
+#: vendoring a copy. Unset, those tests skip — `pytest tests/` stays green in a
+#: checkout that carries no fixtures, which is every checkout of this repo.
+TEST_SCHEMA_ENV = "REEL_TEST_SCHEMA"

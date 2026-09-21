@@ -159,7 +159,6 @@ of the DataHelix `proposals/hippo-split.md` / `proposals/aperture-split.md` runb
 exon/spec_planner.py                  -> src/reel/planner/spec_planner.py
 exon/schema.py                        -> src/reel/planner/capabilities.py   # manifest loader
 exon/mosaic_mcp.py                    -> src/reel/planner/boundary.py       # MCP client to Mosaic
-exon/context/{seed,template}.py       -> src/reel/planner/context/
 # 2. Carry the turn function + HTTP endpoint (both exist as of P2).
 exon/conversational_planner.py        -> src/reel/story/turn.py             # one stateless turn
 exon/conversational_orchestrator.py   -> src/reel/story/conversation.py     # turn-list bookkeeping
@@ -184,8 +183,15 @@ openspec/changes/add-exon-conversational-contract/specs/exon-conversational-plan
 
 ```
 exon/harness/*                        -> src/reel/harness/*
+exon/context/{seed,template}.py       -> src/reel/harness/context/
 tests/test_grading.py, test_harness_invariants.py,
 tests/test_independence.py, test_runner_fake.py                          -> tests/
+# CORRECTED 2026-09-21 during B-runtime: `context/` moved here from the runtime
+# list. The 2026-09-11 map filed it under the planner, but nothing in the turn
+# path imports it -- only harness/{__init__,cli,loop,refine}.py do -- and it
+# imports `harness.probe` and the retired `planner` module itself, so it cannot
+# carry before the harness can.
+#
 # Blocked until task 2.5 re-bases grading onto the QuerySpec shape: grading.py
 # imports validator.resolve_field, so it would arrive unable to grade anything.
 # A6's REEL_EVAL_CASES seam is what lets it read the demo repo's evals/ without

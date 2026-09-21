@@ -17,3 +17,9 @@ def test_the_fixture_seam_is_registered():
     # Phase A6: named before it is consumed, so Phase B-harness inherits a
     # contract rather than inventing one.
     assert reel.EVAL_CASES_ENV == "REEL_EVAL_CASES"
+
+
+def test_the_schema_seam_is_registered():
+    # The counterpart to REEL_EVAL_CASES: domain-bound tests read a schema by
+    # path instead of this repo carrying one.
+    assert reel.TEST_SCHEMA_ENV == "REEL_TEST_SCHEMA"
