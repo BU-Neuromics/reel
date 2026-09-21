@@ -20,7 +20,8 @@ mosaic://capabilities as an MCP client", now that
 `add-mosaic-mcp-boundary` task 2.3 has supplied that client.
 
 This is the process Mosaic's `converse_query_spec` tool talks to: point
-Mosaic's `MOSAIC_REEL_URL` at this server's `/turn`.
+Mosaic's `MOSAIC_EXON_URL` at this server's `/turn` (renamed to
+`MOSAIC_REEL_URL` at migration Phase C2, with the old name kept as an alias).
 """
 from __future__ import annotations
 
@@ -144,7 +145,7 @@ def create_conversational_app(
     return app
 
 
-#: Where this service listens. Mosaic's own MOSAIC_REEL_URL must agree with
+#: Where this service listens. Mosaic's own MOSAIC_EXON_URL must agree with
 #: whatever these produce -- the two are configured independently, in
 #: different processes, so a mismatch is a deployment error nothing here can
 #: detect (the symptom is an "error" turn from converse_query_spec saying
@@ -156,7 +157,7 @@ DEFAULT_PORT = 9100
 
 
 def main() -> None:
-    """`python -m exon.conversational_server` -- the deployable turn service.
+    """`python -m reel.serve.http` -- the deployable turn service.
 
     Capabilities are fetched ONCE, at startup, not per request: they are a
     property of the deployment's schema, not of any conversation, and
@@ -167,7 +168,7 @@ def main() -> None:
     resources (built at mount time).
 
     Failing loudly here rather than starting a server that cannot plan
-    anything: an Exon with no grounding would accept turns and then fail
+    anything: a planner with no grounding would accept turns and then fail
     every one of them, which is strictly worse than not starting.
     """
     import os
@@ -175,7 +176,7 @@ def main() -> None:
 
     import uvicorn
 
-    from .mosaic_mcp import MosaicBoundaryError, fetch_capabilities, mcp_url
+    from ..planner.boundary import MosaicBoundaryError, fetch_capabilities, mcp_url
 
     print(f"Fetching capability grounding from {mcp_url()} ...", file=sys.stderr)
     try:
@@ -198,8 +199,12 @@ def main() -> None:
         file=sys.stderr,
     )
     print(
-        f"Serving Exon's conversational turn endpoint at http://{host}:{port}/turn\n"
-        f"Point Mosaic at it with: MOSAIC_REEL_URL=http://{host}:{port}/turn",
+        f"Serving Reel's conversational turn endpoint at http://{host}:{port}/turn\n"
+        # Mosaic's variable, not Reel's -- renaming it to MOSAIC_REEL_URL is
+        # migration Phase C2 (with the old name kept as a deprecated alias),
+        # and that has not happened. Mosaic reads MOSAIC_EXON_URL today, so
+        # that is what this must print or the instruction is simply wrong.
+        f"Point Mosaic at it with: MOSAIC_EXON_URL=http://{host}:{port}/turn",
         file=sys.stderr,
     )
     uvicorn.run(create_conversational_app(capabilities), host=host, port=port)

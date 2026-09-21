@@ -1,0 +1,8 @@
+.git
+.github
+design
+proposals
+openspec
+tests
+**/__pycache__
+*.egg-info
