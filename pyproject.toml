@@ -1,0 +1,56 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "datahelix-reel"
+version = "0.0.0"
+description = "Reel: the data-story engine. Plans a typed QuerySpec from natural language, conversationally, behind Mosaic's validating relay."
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+keywords = ["data-story", "query-planning", "llm", "linkml", "metadata"]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "Typing :: Typed",
+]
+
+# The planner talks to a model through litellm and to Mosaic through the MCP
+# client; it serves the relay-facing turn endpoint over FastAPI. It deliberately
+# depends on NO schema, data generator or evaluation fixture -- those belong to
+# the deployment being described, not to the planner that plans against it.
+dependencies = [
+    "litellm",
+    "mcp",
+    "fastapi",
+    "uvicorn[standard]",
+    "pydantic>=2.0",
+]
+
+[project.optional-dependencies]
+# Declared now, unpopulated until Phase B-harness. The reliability suite cannot
+# carry until task 2.5 re-bases its grading onto the QuerySpec shape --
+# `harness/grading.py` resolves slots through the retired validator today.
+harness = []
+
+[project.urls]
+Homepage = "https://github.com/BU-Neuromics/reel"
+Repository = "https://github.com/BU-Neuromics/reel"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/reel"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# No test in this suite may call a model. The harness measures model behaviour
+# and is a separate, opt-in surface; `pytest tests/` must stay fast and free.
+addopts = "-q"

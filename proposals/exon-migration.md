@@ -94,7 +94,7 @@ of the DataHelix `proposals/hippo-split.md` / `proposals/aperture-split.md` runb
       ADR-0010 ratified (ADR-0007 should not lead it).
 - [ ] **P4 — ADR-0001–0004 ratified** on the strength of the probe (they were gated on it), or an
       explicit decision to migrate with them still `Proposed`.
-- [ ] **P5 — Landing site ready** (Phase A below complete).
+- [x] **P5 — Landing site ready** (Phase A below complete). **MET 2026-09-21** — A4/A5/A6 landed.
 
 ## 3. Migration phases
 
@@ -105,12 +105,12 @@ of the DataHelix `proposals/hippo-split.md` / `proposals/aperture-split.md` runb
       notes on ADR-0001–0005, `design/platform-alignment.md`.
 - [x] A2. Record the Reel-side decisions the migration rests on: ADR-0006, ADR-0007, ADR-0008.
 - [x] A3. This runbook; `.gitignore`; README/CLAUDE.md describing the intended code layout.
-- [ ] A4. `pyproject.toml` skeleton for `datahelix-reel` (name, `src/` layout, `litellm` +
+- [x] A4. `pyproject.toml` skeleton for `datahelix-reel` (name, `src/` layout, `litellm` +
       `mcp` client deps, `reel[harness]` extra) — **only when the migration is scheduled**, so an
       empty package is never published.
-- [ ] A5. `.github/workflows/tests.yml` mirroring Exon's test invocation (`pytest tests/`, no
+- [x] A5. `.github/workflows/tests.yml` mirroring Exon's test invocation (`pytest tests/`, no
       model calls) — with A4.
-- [ ] A6. Register the intended fixture seam: how `reel.harness` locates a case set
+- [x] A6. Register the intended fixture seam: how `reel.harness` locates a case set
       (`REEL_EVAL_CASES=<path>`), so the demo repo's `evals/` can be pointed at without copying.
 
 ### Phase B — Build the Reel seed from Exon's carry-set
