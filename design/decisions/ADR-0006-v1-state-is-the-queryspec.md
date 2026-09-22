@@ -3,7 +3,7 @@
 - **Status:** Accepted
 - **Date:** 2026-09-11
 - **Deciders:** labadorf, design session (recommended resolution — records the Reel side of two Accepted cross-component decisions)
-- **Related:** ADR-0001 (instruction-path model — `State` is an intensional subgraph spec), ADR-0003 (grain discipline; set-ops deferred), ADR-0007 (validation/execution delegated to Mosaic's boundary), ADR-0008 (Exon seeds Reel); **Aperture ADR-0035** (Accepted 2026-08-19 — cross-class queries are a typed `QuerySpec` artifact; "Aperture owns the noun and its execution; Reel composes instances of it"), Aperture ADR-0004 (no middle scripting layer), Aperture ADR-0005 (one typed artifact for humans and LLMs); **Mosaic ADR-0006** (typed GraphQL filter contract), **Mosaic ADR-0007** (aggregation & ordering surface), **Mosaic ADR-0009** (MCP boundary accepts `QuerySpec` as its canonical typed query artifact); `../instruction-path-model.md` §2, §8; `../prefab/data-stories.md` interface #1–#2
+- **Related:** ADR-0001 (instruction-path model — `State` is an intensional subgraph spec), ADR-0003 (grain discipline; set-ops deferred), ADR-0007 (validation/execution delegated to Mosaic's boundary), ADR-0008 (Exon seeds Reel); **Aperture ADR-0041** (Proposed 2026-09-22 — builds `QuerySpec.columns`, the `explode` half of `pivot-grain`; see Notes), **Aperture ADR-0035** (Accepted 2026-08-19 — cross-class queries are a typed `QuerySpec` artifact; "Aperture owns the noun and its execution; Reel composes instances of it"), Aperture ADR-0004 (no middle scripting layer), Aperture ADR-0005 (one typed artifact for humans and LLMs); **Mosaic ADR-0006** (typed GraphQL filter contract), **Mosaic ADR-0007** (aggregation & ordering surface), **Mosaic ADR-0009** (MCP boundary accepts `QuerySpec` as its canonical typed query artifact); `../instruction-path-model.md` §2, §8; `../prefab/data-stories.md` interface #1–#2
 
 ## Context
 
@@ -50,7 +50,7 @@ own.** Concretely:
    | `exists-related-filter` | `RelatedCondition {edge, quantifier: some\|none, criteria}` | built (prototype) |
    | `distinct-values` | Mosaic `facet_query_spec` over the current State (Mosaic ADR-0007; mosaic#195) | server tool live; not yet routed |
    | `group-by+count` | Mosaic `count_query_spec` / `facet_query_spec` | server tool live; not yet routed |
-   | `pivot-grain` | a new `anchor` with the prior State re-derived as a `RelatedCondition` (the prototype's Decision 6), or an explicit `explode` | **blocked** — needs reverse-edge traversal ([mosaic#204](https://github.com/BU-Neuromics/mosaic/issues/204)) |
+   | `pivot-grain` | a new `anchor` with the prior State re-derived as a `RelatedCondition` (the prototype's Decision 6), or an explicit `explode` | **mechanism shipped, not yet routed** — reverse edges via LinkML `inverse:` ([mosaic#204](https://github.com/BU-Neuromics/mosaic/issues/204), merged; [Mosaic ADR-0011](https://github.com/BU-Neuromics/mosaic/pull/219)); gated on a Mosaic release ([mosaic#218](https://github.com/BU-Neuromics/mosaic/issues/218)) and a deployment declaring the slot |
    | `set-op` | between States — Reel's own; **deferred** (ADR-0003) | unbuilt |
    | `render-as-primitive` | a View Contract instance bound to the State's result (ADR-0005) | unbuilt |
 
@@ -102,12 +102,32 @@ own.** Concretely:
 - Whether `render-as-primitive` should carry a `QuerySpec` reference inside the View Contract's
   `provenance` block (so a rendered artifact points back at the State that produced it) is a
   View Contract design-pass question (`datahelix:platform/design/view-contract.md`).
-- **`pivot-grain` is blocked on reverse-edge traversal** ([mosaic#204](https://github.com/BU-Neuromics/mosaic/issues/204),
-  2026-09-11): `RelatedCondition.edge` can only name a reference the anchor itself holds, so
-  "the donors of those samples" (Donor ← Sample.donor) is inexpressible today; the proposed fix
-  is LinkML `inverse:`-declared slots as computed/virtual fields, resolved through the forward
-  slot. Reel takes no position on the mechanism; it needs the *edge* to be nameable and
-  validated server-side (ADR-0007), since Mosaic's relay re-validates every turn.
+- **`pivot-grain`: the mechanism shipped (correction, 2026-09-22).** This note read
+  "**blocked** on reverse-edge traversal ([mosaic#204](https://github.com/BU-Neuromics/mosaic/issues/204))",
+  which was true on 2026-09-11 and is not now. The proposed fix — LinkML `inverse:`-declared slots
+  resolved through the forward slot — is **merged** (`7fc300c`) and tested across Mosaic's
+  QuerySpec compiler, GraphQL, MCP and both storage adapters; Mosaic ADR-0011 is ratified in
+  [mosaic#219](https://github.com/BU-Neuromics/mosaic/pull/219). A deployment declaring
+  `inverse: donor` gets `Donor.samples` and `DonorFilter.samples: SampleEdgeQuantifiers
+  { some, none }` with no Mosaic code change, which is exactly the "nameable and validated
+  server-side" property this note asked for (ADR-0007), so Reel's requirement is met on the
+  mechanism's own terms.
+
+  **What remains is not engineering.** No tag contains the merge (Mosaic's latest is `v0.13.0`,
+  which `datahelix`'s certification pins — [mosaic#218](https://github.com/BU-Neuromics/mosaic/issues/218)),
+  and no deployment LinkML declares an `inverse:` slot yet. The blocker moved from *engineering*
+  to *release + schema authoring*; it did not vanish, and this ADR should not be read as claiming
+  `pivot-grain` is routable today. Reel still takes no position on the mechanism.
+
+  **The other half of `pivot-grain` also has an artifact now.** This row offers "or an explicit
+  `explode`", which had nowhere to live: `QuerySpec.columns` was reserved by Aperture ADR-0035 and
+  never built. **Aperture ADR-0041** (Proposed 2026-09-22) builds it, split by the test *does
+  changing it change the row set?* — traversal and grain (`explode`) stay in the artifact,
+  visibility and ordering become view-side state that never reaches a server. An `explode`
+  `ColumnSpec` is therefore the declared grain change `pivot-grain` binds to, and the view-side
+  half is where `render-as-primitive` eventually lands via the View Contract's `table` encoding.
+  Per §3 of this ADR, that amendment is being made by the noun's owner, for Reel to consume —
+  which is the seam working as designed. No Reel change is required for it to ship.
 - Polymorphic `is_a` anchors (Aperture ADR-0035 notes) will surface here as soon as a story
   pivots across a class hierarchy; no Reel position yet.
 
