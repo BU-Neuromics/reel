@@ -41,6 +41,15 @@ dependencies = [
 # carry until task 2.5 re-bases its grading onto the QuerySpec shape --
 # `harness/grading.py` resolves slots through the retired validator today.
 harness = []
+# What `pytest tests/` needs beyond the runtime deps. Declared as an extra
+# rather than pinned in the workflow so `pip install -e .[test]` reproduces CI
+# locally — the failure this fixes was CI installing the package and then
+# calling a pytest that was never installed.
+test = [
+    "pytest",
+    # TestClient lives behind fastapi's optional http client.
+    "httpx",
+]
 
 [project.urls]
 Homepage = "https://github.com/BU-Neuromics/reel"

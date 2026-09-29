@@ -17,7 +17,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install
-        run: pip install -e .
+        run: pip install -e ".[test]"
       - name: Test
         # Mirrors mosaic-demo-small's invocation. No model calls: every test in
         # this suite stubs the planner's transport, so CI needs no provider
