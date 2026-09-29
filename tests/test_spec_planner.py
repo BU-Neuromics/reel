@@ -84,6 +84,21 @@ class TestToolSchema:
         # Not a restatement of the constant -- this pins the tool schema the MODEL sees to
         # Mosaic's own FilterOp spelling. A drift here means the model is offered an operator
         # the server rejects, or denied one it accepts.
+        #
+        # Guarded like the ground-truth tests below, and for the same reason: Mosaic is not a
+        # dependency of Reel and is not on PyPI, so a bare import makes `pytest tests/` fail in
+        # any checkout that has no sibling mosaic -- which is every CI runner. Skipping keeps
+        # the suite honest about what it actually verified rather than green by deletion.
+        #
+        # This assertion's real home is `datahelix/tests/contracts/`, which exists for exactly
+        # this ("consumer-expectation contract tests") and runs with the submodules checked
+        # out. Until it moves there, it runs wherever mosaic is importable and says so when it
+        # does not.
+        pytest.importorskip(
+            "mosaic",
+            reason="mosaic is not importable here, so the FilterOp contract cannot be checked "
+            "-- it belongs in datahelix/tests/contracts/ where the submodules are present",
+        )
         from mosaic.core.schema_typing import FilterOp
 
         assert FILTER_OPS == [o.value for o in FilterOp]
