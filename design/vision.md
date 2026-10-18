@@ -3,10 +3,10 @@
 **Status:** 🔵 Vision / charter (2026-06-22; names and platform state refreshed 2026-09-11).
 Reel's charter, seeded on the data-story-engine split from Aperture. The boundary decision is
 DataHelix platform
-[ADR-0003](https://github.com/BU-Neuromics/datahelix/blob/main/platform/design/decisions/ADR-0003-reel-data-story-engine-separate-from-portal.md)
+[ADR-0003](https://github.com/datahelix-platform/datahelix/blob/main/platform/design/decisions/ADR-0003-reel-data-story-engine-separate-from-portal.md)
 ("Separate the data-story engine (Reel) from the rendering portal (Aperture)"); the joining
 interface is
-[`platform/design/view-contract.md`](https://github.com/BU-Neuromics/datahelix/blob/main/platform/design/view-contract.md).
+[`platform/design/view-contract.md`](https://github.com/datahelix-platform/datahelix/blob/main/platform/design/view-contract.md).
 
 > **Name.** "Reel" — a reel of frames ≈ a sequence of data-story states; in Aperture's optical
 > family. It began as a working codename (alternatives: Strand, Loom, Lumen, Cadence) and was
@@ -15,7 +15,7 @@ interface is
 ## What Reel is
 
 Reel is the DataHelix platform's **AI-native data-story engine** over the
-[domain graph](https://github.com/BU-Neuromics/datahelix/blob/main/platform/design/domain-graph.md)
+[domain graph](https://github.com/datahelix-platform/datahelix/blob/main/platform/design/domain-graph.md)
 — one typed knowledge graph whose type system is the deployment's LinkML schema and whose runtime
 is **Mosaic** (formerly Hippo, Mosaic ADR-0004). Reel is the ambitious half of what was
 originally "Aperture": the part that turns natural-language and UI-driven exploration into a

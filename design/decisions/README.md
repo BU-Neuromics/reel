@@ -2,7 +2,7 @@
 
 Reel records design decisions as **ADRs** following the **platform-wide convention** — the
 canonical process, lifecycle/statuses, and template live in the DataHelix platform repo at
-[`platform/design/decisions/README.md`](https://github.com/BU-Neuromics/datahelix/blob/main/platform/design/decisions/README.md)
+[`platform/design/decisions/README.md`](https://github.com/datahelix-platform/datahelix/blob/main/platform/design/decisions/README.md)
 (see also that repo's root `CLAUDE.md`). [`_template.md`](./_template.md) is the local copy of
 the canonical template.
 
@@ -19,7 +19,7 @@ reversals `Supersede` with a forward pointer.
 ADR-0001–0005 were authored inside the `aperture` component as **Aperture ADR-0022–0026** and
 **renumbered** when the data-story engine was split into Reel (2026-06-22; boundary decision
 DataHelix platform
-[ADR-0003](https://github.com/BU-Neuromics/datahelix/blob/main/platform/design/decisions/ADR-0003-reel-data-story-engine-separate-from-portal.md),
+[ADR-0003](https://github.com/datahelix-platform/datahelix/blob/main/platform/design/decisions/ADR-0003-reel-data-story-engine-separate-from-portal.md),
 whose **Outcome** section records the execution — no separate runbook landed). The originals are
 `Superseded by` these in Aperture with forward pointers. The renumbering map:
 
@@ -54,9 +54,9 @@ always qualified:
 
 | Prefix | Repo | Notes |
 |---|---|---|
-| **Aperture ADR-NNNN** | `BU-Neuromics/aperture` | Low numbers overlap Reel's (Reel ADR-0003 *topology* vs. Aperture ADR-0003 *config-as-LinkML-in-Mosaic*). Aperture reused **0026** after the split, so "Aperture ADR-0026" is ambiguous — cite Reel ADR-0005 for the headless-core decision. |
-| **Mosaic ADR-NNNN** | `BU-Neuromics/mosaic` | Mosaic (formerly Hippo, Mosaic ADR-0004). Older docs say "Hippo ADR-0001" for graph-level as-of; it is **Mosaic ADR-0001**. |
-| **platform ADR-NNNN** | `BU-Neuromics/datahelix` `platform/design/decisions/` | Cross-component decisions. `datahelix:` prefixes a path in that repo (e.g. `datahelix:platform/design/view-contract.md`). |
+| **Aperture ADR-NNNN** | `datahelix-platform/aperture` | Low numbers overlap Reel's (Reel ADR-0003 *topology* vs. Aperture ADR-0003 *config-as-LinkML-in-Mosaic*). Aperture reused **0026** after the split, so "Aperture ADR-0026" is ambiguous — cite Reel ADR-0005 for the headless-core decision. |
+| **Mosaic ADR-NNNN** | `datahelix-platform/mosaic` | Mosaic (formerly Hippo, Mosaic ADR-0004). Older docs say "Hippo ADR-0001" for graph-level as-of; it is **Mosaic ADR-0001**. |
+| **platform ADR-NNNN** | `datahelix-platform/datahelix` `platform/design/decisions/` | Cross-component decisions. `datahelix:` prefixes a path in that repo (e.g. `datahelix:platform/design/view-contract.md`). |
 
 When a Reel ADR imposes a requirement on another component, reference that component's ADR /
 spec so the dependency is legible from both sides (e.g. ADR-0002 ↔ Mosaic ADR-0001; ADR-0006 ↔
