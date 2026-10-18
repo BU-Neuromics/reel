@@ -61,6 +61,10 @@ per the platform-wide convention
 Inside Reel, bare `ADR-NNNN` is a Reel ADR; others are qualified **Aperture ADR-NNNN**, **Mosaic
 ADR-NNNN**, **platform ADR-NNNN**.
 
+## Acknowledgments
+
+Reel is part of the DataHelix platform, developed by Adam Labadorf with the National Center for PTSD Brain Bank, U.S. Department of Veterans Affairs.
+
 ## License
 
 MIT — see [`LICENSE`](LICENSE).
