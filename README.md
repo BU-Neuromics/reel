@@ -1,6 +1,6 @@
 # Reel — AI-Native Data-Story Engine (DataHelix platform)
 
-**Reel** is the [DataHelix](https://github.com/BU-Neuromics/datahelix) platform's **headless
+**Reel** is the [DataHelix](https://github.com/datahelix-platform/datahelix) platform's **headless
 data-story / instruction-path engine** over the domain graph. It turns natural-language and
 UI-driven exploration into **typed, replayable, reproducible data stories** — sequences of
 platform **QuerySpec** states plus the instructions that produced them — and emits **View
@@ -23,8 +23,8 @@ Reel was split out of **Aperture** on 2026-06-22 so the config-driven portal cou
 rendering MVP while the AI-native engine matures on its own cadence. The boundary decision and
 the joining interface live in the DataHelix platform repo:
 
-- Boundary: [`platform/design/decisions/ADR-0003`](https://github.com/BU-Neuromics/datahelix/blob/main/platform/design/decisions/ADR-0003-reel-data-story-engine-separate-from-portal.md) — *Separate the data-story engine (Reel) from the rendering portal (Aperture)* (its **Outcome** section records the execution)
-- Interface: [`platform/design/view-contract.md`](https://github.com/BU-Neuromics/datahelix/blob/main/platform/design/view-contract.md) — the renderer-agnostic spec-with-data-attached (still a stub)
+- Boundary: [`platform/design/decisions/ADR-0003`](https://github.com/datahelix-platform/datahelix/blob/main/platform/design/decisions/ADR-0003-reel-data-story-engine-separate-from-portal.md) — *Separate the data-story engine (Reel) from the rendering portal (Aperture)* (its **Outcome** section records the execution)
+- Interface: [`platform/design/view-contract.md`](https://github.com/datahelix-platform/datahelix/blob/main/platform/design/view-contract.md) — the renderer-agnostic spec-with-data-attached (still a stub)
 
 ## Where to start
 
@@ -44,10 +44,10 @@ the joining interface live in the DataHelix platform repo:
 
 | | |
 |---|---|
-| **Platform repo** | [`BU-Neuromics/datahelix`](https://github.com/BU-Neuromics/datahelix) — Reel is **not yet mounted** there as a submodule (Mosaic and Aperture are); mounting is follow-on work named in platform ADR-0003 and this repo's runbook. |
-| **Domain graph runtime** | **Mosaic** (formerly Hippo, Mosaic ADR-0004) — [`BU-Neuromics/mosaic`](https://github.com/BU-Neuromics/mosaic). Hosts the MCP boundary (Mosaic ADR-0009) that validates/executes QuerySpecs and the validating relay (ADR-0010) that drives a planner such as Exon/Reel. Data-contract identifiers (`hippoSchema`, `hippo_core`) keep their historical spelling. |
+| **Platform repo** | [`datahelix-platform/datahelix`](https://github.com/datahelix-platform/datahelix) — Reel is **not yet mounted** there as a submodule (Mosaic and Aperture are); mounting is follow-on work named in platform ADR-0003 and this repo's runbook. |
+| **Domain graph runtime** | **Mosaic** (formerly Hippo, Mosaic ADR-0004) — [`datahelix-platform/mosaic`](https://github.com/datahelix-platform/mosaic). Hosts the MCP boundary (Mosaic ADR-0009) that validates/executes QuerySpecs and the validating relay (ADR-0010) that drives a planner such as Exon/Reel. Data-contract identifiers (`hippoSchema`, `hippo_core`) keep their historical spelling. |
 | **Query artifact** | **QuerySpec** — Aperture ADR-0035 defines it; Mosaic ADR-0009 validates it; Reel composes instances (ADR-0006). |
-| **Renderer** | **Aperture** — [`BU-Neuromics/aperture`](https://github.com/BU-Neuromics/aperture), the config-driven portal (React + Vite SPA); consumes View Contract instances; reaches a planner only through Mosaic. |
+| **Renderer** | **Aperture** — [`datahelix-platform/aperture`](https://github.com/datahelix-platform/aperture), the config-driven portal (React + Vite SPA); consumes View Contract instances; reaches a planner only through Mosaic. |
 | **Packaging (planned)** | `datahelix-reel` distribution, `import reel`, `src/reel/` (platform ADR-0002). |
 
 Reel is **headless** and **generic** (no domain nouns): the domain schema is the deployment's
@@ -57,7 +57,7 @@ LinkML, hosted in Mosaic.
 
 Decisions are **ADRs** in `design/decisions/`, indexed by the Decision Log in `design/INDEX.md`,
 per the platform-wide convention
-([`platform/design/decisions/README.md`](https://github.com/BU-Neuromics/datahelix/blob/main/platform/design/decisions/README.md)).
+([`platform/design/decisions/README.md`](https://github.com/datahelix-platform/datahelix/blob/main/platform/design/decisions/README.md)).
 Inside Reel, bare `ADR-NNNN` is a Reel ADR; others are qualified **Aperture ADR-NNNN**, **Mosaic
 ADR-NNNN**, **platform ADR-NNNN**.
 

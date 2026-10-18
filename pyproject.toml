@@ -52,8 +52,8 @@ test = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/BU-Neuromics/reel"
-Repository = "https://github.com/BU-Neuromics/reel"
+Homepage = "https://github.com/datahelix-platform/reel"
+Repository = "https://github.com/datahelix-platform/reel"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/reel"]

@@ -1,7 +1,7 @@
 # Prefab — Data Stories over Mosaic Metadata (the keystone MVP)
 
 > **Migrated from Aperture (2026-06-22)** with the data-story engine split (DataHelix platform
-> [ADR-0003](https://github.com/BU-Neuromics/datahelix/blob/main/platform/design/decisions/ADR-0003-reel-data-story-engine-separate-from-portal.md)).
+> [ADR-0003](https://github.com/datahelix-platform/datahelix/blob/main/platform/design/decisions/ADR-0003-reel-data-story-engine-separate-from-portal.md)).
 > This is Reel's keystone probe — **and it has run**, as **Exon** (`BU-Neuromics/mosaic-demo-small`);
 > see "Probe status" below. References to portal-era Aperture docs (`core-loop.md`,
 > `gen3-comparison.md`) name docs that stay in the **Aperture** repo; ADR references to the
@@ -38,7 +38,7 @@ This unifies the AI vision with the paused core-loop work: same substrate, conve
 on top.
 
 **The cohort object is grain-agnostic and re-rootable.** Per the platform
-[domain-graph model](https://github.com/BU-Neuromics/datahelix/blob/main/platform/design/domain-graph.md), a query returns a *knowledge
+[domain-graph model](https://github.com/datahelix-platform/datahelix/blob/main/platform/design/domain-graph.md), a query returns a *knowledge
 subgraph*, and "metadata vs. data" is a **role a node plays relative to the query**, not a storage
 category. Turn 3 ("how do the *samples* break down…") re-roots the focal entity from subjects to
 samples while the same diagnosis/toxicology predicates stay attached as *descriptors* — the
@@ -98,7 +98,7 @@ probe did not need it. Reel's own job is the *sequencing* — the cohort carried
 
 The original example's value-histogram turn crossed a real boundary — but the boundary is **not**
 "metadata vs. data" (a query-relative role); it is **structured relational records vs. bulk opaque
-payloads** (see [domain-graph.md](https://github.com/BU-Neuromics/datahelix/blob/main/platform/design/domain-graph.md)). The sharp reason to
+payloads** (see [domain-graph.md](https://github.com/datahelix-platform/datahelix/blob/main/platform/design/domain-graph.md)). The sharp reason to
 excise that turn: expression *values* are a **bulk array payload**, not a structured record.
 
 **Decision (2026-06-17): Option B.** Mosaic tracks that the expression *data exists* (a
@@ -152,7 +152,7 @@ Reel's first measured backlog ([`../../proposals/exon-migration.md`](../../propo
 ## Open questions
 - **DS-1 — RESOLVED (2026-06-17): Option B.** Structured-record/bulk-payload boundary; values live
   in files via Canon/Cappella (deferred); MVP stories stay within the domain graph. See above +
-  [domain-graph.md](https://github.com/BU-Neuromics/datahelix/blob/main/platform/design/domain-graph.md).
+  [domain-graph.md](https://github.com/datahelix-platform/datahelix/blob/main/platform/design/domain-graph.md).
 - **DS-2 — RESOLVED (2026-08-19, Mosaic enhancement):** yes, now. Mosaic ADR-0006 (typed
   per-class filter inputs with relationship predicates — `RelatedCondition {edge, quantifier,
   criteria}`) and ADR-0007 (counts, `facetCounts`, min/max, `order_by`), both Accepted and shipped

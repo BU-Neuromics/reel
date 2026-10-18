@@ -10,7 +10,7 @@ Log in [`INDEX.md`](./INDEX.md).
 
 | Reel docs said | Now | Source |
 |---|---|---|
-| **BASS** platform; `drylims` integration repo | **DataHelix**; `BU-Neuromics/datahelix` | DataHelix rebrand 2026-07-07 (datahelix PR #43) |
+| **BASS** platform; `drylims` integration repo | **DataHelix**; `datahelix-platform/datahelix` | DataHelix rebrand 2026-07-07 (datahelix PR #43) |
 | **Hippo** (graph runtime) | **Mosaic** — distributed as `datahelix-mosaic`, imported as `mosaic`. Data-contract identifiers (`hippoSchema`, `hippo_core`, `hippo_*` annotations, `X-Hippo-Actor`) deliberately unchanged. | Mosaic ADR-0004 |
 | "Reel" is a **provisional codename** (Strand, Loom, Lumen, Cadence) | **Ratified** — Reel is the component's real name | platform ADR-0003 ("Name" note) |
 | Boundary decision `drylims:platform/design/decisions/ADR-0001` | **platform ADR-0003** (platform ADR-0001 is now the certified-frontier ledger; 0002 is the metapackage) | `datahelix:platform/design/INDEX.md` |

@@ -13,7 +13,7 @@ behind Mosaic's validating relay — ADR-0007). See `design/vision.md` for the c
 `design/platform-alignment.md` for how Reel's docs map onto the current platform.
 
 Reel was split out of Aperture on 2026-06-22 (boundary: DataHelix platform ADR-0003 —
-`https://github.com/BU-Neuromics/datahelix/blob/main/platform/design/decisions/ADR-0003-reel-data-story-engine-separate-from-portal.md`;
+`https://github.com/datahelix-platform/datahelix/blob/main/platform/design/decisions/ADR-0003-reel-data-story-engine-separate-from-portal.md`;
 its Outcome section records the execution). Reel is **not** mounted in the `datahelix` repo as a
 submodule yet, so cross-repo links here are GitHub URLs or `datahelix:<path>` / `mosaic:<path>`
 notation, not relative paths.
@@ -21,7 +21,7 @@ notation, not relative paths.
 ## Names (current)
 
 - **DataHelix** — the platform (formerly BASS; the integration repo was `drylims`, now
-  `BU-Neuromics/datahelix`). Never write BASS/drylims in new text.
+  `datahelix-platform/datahelix`). Never write BASS/drylims in new text.
 - **Mosaic** — the LinkML runtime / structured domain graph (formerly Hippo, Mosaic ADR-0004;
   dist `datahelix-mosaic`, `import mosaic`). Write "Mosaic" in prose; **keep** data-contract
   identifiers as spelled: `hippoSchema`, `hippo_core`, `hippo_*` annotation keys, `X-Hippo-Actor`.

@@ -2,7 +2,7 @@
 
 > **Migrated from Aperture (2026-06-22).** This doc was authored inside Aperture and moved to
 > Reel when the data-story engine was split out (DataHelix platform
-> [ADR-0003](https://github.com/BU-Neuromics/datahelix/blob/main/platform/design/decisions/ADR-0003-reel-data-story-engine-separate-from-portal.md),
+> [ADR-0003](https://github.com/datahelix-platform/datahelix/blob/main/platform/design/decisions/ADR-0003-reel-data-story-engine-separate-from-portal.md),
 > whose **Outcome** section records the execution). Its decisions D-1/D-2/D-3/D-5 are now Reel
 > **ADR-0001–0004** (renumbered from Aperture ADR-0022–0025). References to the *portal's*
 > decisions are qualified **"Aperture ADR-NNNN"**; Mosaic's as **"Mosaic ADR-NNNN"**.
@@ -16,7 +16,7 @@
 structure, independent of any particular UI. Where `data-stories.md` is the keystone MVP
 (linear, conversational, Mosaic-only), this doc is the general structure that MVP is a narrow
 slice of. Companion to [`vision.md`](./vision.md) and the platform
-[domain-graph model](https://github.com/BU-Neuromics/datahelix/blob/main/platform/design/domain-graph.md).
+[domain-graph model](https://github.com/datahelix-platform/datahelix/blob/main/platform/design/domain-graph.md).
 
 ## Why this exists
 
@@ -55,7 +55,7 @@ narrated": the **transforms** are promoted to first-class typed `Instruction`s; 
 `data-stories.md` framed the evolving selection as a *cohort*. We generalize: a **State is a
 generic subgraph** — a collection of objects that inherit from `Entity`, plus the
 `Relationship`s among them, following the semantics of the LinkML schema. This is the truest
-expression of the platform's [domain-graph model](https://github.com/BU-Neuromics/datahelix/blob/main/platform/design/domain-graph.md):
+expression of the platform's [domain-graph model](https://github.com/datahelix-platform/datahelix/blob/main/platform/design/domain-graph.md):
 "every query returns a knowledge subgraph; metadata-vs-data is a query-relative *role*."
 
 A **"cohort" is then a State viewed through a focal lens** — a focal entity type plus its

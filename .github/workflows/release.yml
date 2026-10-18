@@ -3,7 +3,7 @@ name: Release
 # Release pipeline. Mirrors aperture's and mosaic's: pushing a `vX.Y.Z` tag —
 # or dispatching this workflow with that tag name, which creates the tag at the
 # dispatched ref — builds the planning-service image and publishes it
-# digest-addressed at ghcr.io/bu-neuromics/reel, attaching an
+# digest-addressed at ghcr.io/datahelix-platform/reel, attaching an
 # `image-digest.json` release asset for the DataHelix certification workflow /
 # composition.lock.json bump bot.
 #
@@ -70,7 +70,7 @@ jobs:
       - uses: docker/metadata-action@v5
         id: meta
         with:
-          images: ghcr.io/bu-neuromics/reel
+          images: ghcr.io/datahelix-platform/reel
           # Explicit version (not type=semver) so workflow_dispatch runs, which
           # aren't on a tag ref, tag the image identically.
           tags: |
@@ -100,11 +100,11 @@ jobs:
           import json
           version = "${{ needs.validate.outputs.version }}"
           digest = "${{ needs.image.outputs.digest }}"
-          image = "ghcr.io/bu-neuromics/reel"
+          image = "ghcr.io/datahelix-platform/reel"
           json.dump(
               {
                   "component": "reel",
-                  "repo": "BU-Neuromics/reel",
+                  "repo": "datahelix-platform/reel",
                   "version": version,
                   "image": image,
                   "digest": digest,

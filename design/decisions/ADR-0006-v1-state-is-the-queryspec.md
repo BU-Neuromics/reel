@@ -50,7 +50,7 @@ own.** Concretely:
    | `exists-related-filter` | `RelatedCondition {edge, quantifier: some\|none, criteria}` | built (prototype) |
    | `distinct-values` | Mosaic `facet_query_spec` over the current State (Mosaic ADR-0007; mosaic#195) | server tool live; not yet routed |
    | `group-by+count` | Mosaic `count_query_spec` / `facet_query_spec` | server tool live; not yet routed |
-   | `pivot-grain` | a new `anchor` with the prior State re-derived as a `RelatedCondition` (the prototype's Decision 6), or an explicit `explode` | **mechanism shipped, not yet routed** — reverse edges via LinkML `inverse:` ([mosaic#204](https://github.com/BU-Neuromics/mosaic/issues/204), merged; [Mosaic ADR-0011](https://github.com/BU-Neuromics/mosaic/pull/219)); gated on a Mosaic release ([mosaic#218](https://github.com/BU-Neuromics/mosaic/issues/218)) and a deployment declaring the slot |
+   | `pivot-grain` | a new `anchor` with the prior State re-derived as a `RelatedCondition` (the prototype's Decision 6), or an explicit `explode` | **mechanism shipped, not yet routed** — reverse edges via LinkML `inverse:` ([mosaic#204](https://github.com/datahelix-platform/mosaic/issues/204), merged; [Mosaic ADR-0011](https://github.com/datahelix-platform/mosaic/pull/219)); gated on a Mosaic release ([mosaic#218](https://github.com/datahelix-platform/mosaic/issues/218)) and a deployment declaring the slot |
    | `set-op` | between States — Reel's own; **deferred** (ADR-0003) | unbuilt |
    | `render-as-primitive` | a View Contract instance bound to the State's result (ADR-0005) | unbuilt |
 
@@ -103,18 +103,18 @@ own.** Concretely:
   `provenance` block (so a rendered artifact points back at the State that produced it) is a
   View Contract design-pass question (`datahelix:platform/design/view-contract.md`).
 - **`pivot-grain`: the mechanism shipped (correction, 2026-09-22).** This note read
-  "**blocked** on reverse-edge traversal ([mosaic#204](https://github.com/BU-Neuromics/mosaic/issues/204))",
+  "**blocked** on reverse-edge traversal ([mosaic#204](https://github.com/datahelix-platform/mosaic/issues/204))",
   which was true on 2026-09-11 and is not now. The proposed fix — LinkML `inverse:`-declared slots
   resolved through the forward slot — is **merged** (`7fc300c`) and tested across Mosaic's
   QuerySpec compiler, GraphQL, MCP and both storage adapters; Mosaic ADR-0011 is ratified in
-  [mosaic#219](https://github.com/BU-Neuromics/mosaic/pull/219). A deployment declaring
+  [mosaic#219](https://github.com/datahelix-platform/mosaic/pull/219). A deployment declaring
   `inverse: donor` gets `Donor.samples` and `DonorFilter.samples: SampleEdgeQuantifiers
   { some, none }` with no Mosaic code change, which is exactly the "nameable and validated
   server-side" property this note asked for (ADR-0007), so Reel's requirement is met on the
   mechanism's own terms.
 
   **What remains is not engineering.** No tag contains the merge (Mosaic's latest is `v0.13.0`,
-  which `datahelix`'s certification pins — [mosaic#218](https://github.com/BU-Neuromics/mosaic/issues/218)),
+  which `datahelix`'s certification pins — [mosaic#218](https://github.com/datahelix-platform/mosaic/issues/218)),
   and no deployment LinkML declares an `inverse:` slot yet. The blocker moved from *engineering*
   to *release + schema authoring*; it did not vanish, and this ADR should not be read as claiming
   `pivot-grain` is routable today. Reel still takes no position on the mechanism.
