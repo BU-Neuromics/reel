@@ -25,12 +25,18 @@ Mosaic's `MOSAIC_EXON_URL` at this server's `/turn` (renamed to
 """
 from __future__ import annotations
 
+import logging
 from typing import Literal, Optional
 
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 from ..story.conversation import _current_query_spec, append_turn, edit_turn
+
+#: Why this endpoint answered 5xx, in Reel's own log. Mosaic relays the body of a
+#: 502 into its log and shows the user a generic error turn, so until this
+#: existed the container that failed was the one that said nothing (reel#11).
+log = logging.getLogger("reel.serve.http")
 
 
 class TurnModel(BaseModel):
@@ -121,6 +127,7 @@ def create_conversational_app(
                 # responsible for turning an unreachable/failing Exon into
                 # its own discriminated "error" turn status (Decision 8) --
                 # from here, a loud transport-level failure is correct.
+                _log_turn_failure("edit", req, exc)
                 raise HTTPException(status_code=502, detail=str(exc)) from exc
             return TurnResponse(
                 turn=TurnModel(**redone),
@@ -152,6 +159,7 @@ def create_conversational_app(
         try:
             new_turns, new_turn = append_turn(turns, req.utterance, capabilities, **kw)
         except RuntimeError as exc:
+            _log_turn_failure("append", req, exc)
             raise HTTPException(status_code=502, detail=str(exc)) from exc
         return TurnResponse(
             turn=TurnModel(**new_turn),
@@ -160,6 +168,17 @@ def create_conversational_app(
         )
 
     return app
+
+
+def _log_turn_failure(kind: str, req: TurnRequest, exc: RuntimeError) -> None:
+    """One WARNING per 502, naming the utterance and the cause. The per-attempt
+    breakdown (each attempt's parse_error) is logged where the attempts were
+    made, in conversation._request_turn_with_retry; this line is the
+    endpoint-level summary a reader greps for first."""
+    log.warning(
+        "POST /turn (%s, %d prior turn(s)) -> 502: utterance=%r -- %s",
+        kind, len(req.turns), req.utterance[:200], exc,
+    )
 
 
 #: Where this service listens. Mosaic's own MOSAIC_EXON_URL must agree with

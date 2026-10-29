@@ -35,12 +35,18 @@ reinterpret them against once the chain of drafts breaks.
 """
 from __future__ import annotations
 
+import logging
 import uuid
 
 from .turn import request_turn
 from ..config import MAX_ATTEMPTS, MODEL, TRANSIENT_RETRIES
 from ..planner import provider_errors
 from ..planner.provider_errors import describe_model_error
+
+#: Reel's own account of why a turn failed. Before this logger existed the cause
+#: of a 502 was recorded only in Mosaic's log (as the body it relayed), so Reel's
+#: container log could not explain its own failures (reel#11).
+log = logging.getLogger("reel.story.conversation")
 
 
 def _new_turn_id() -> str:
@@ -111,6 +117,7 @@ def _request_turn_with_retry(
     last = None
     attempts = 0
     retries = 0
+    failed: list = []  # every attempt that spent a parse attempt, for the log
     while attempts < MAX_ATTEMPTS:
         last = request_turn(
             utterance, capabilities, existing_query_spec=existing_query_spec,
@@ -124,20 +131,47 @@ def _request_turn_with_retry(
                 retries += 1
                 provider_errors.sleep_before_retry(retries)
                 continue
-            raise RuntimeError(describe_model_error(
+            message = describe_model_error(
                 model or MODEL, last.error,
                 transient=getattr(last, "error_transient", False), retries=retries,
-            ))
+            )
+            log.warning(
+                "turn failed: model=%r provider error after %d transient retr%s -- %s",
+                model or MODEL, retries, "y" if retries == 1 else "ies", last.error,
+            )
+            raise RuntimeError(message)
         if last.turn is not None:
+            if getattr(last, "status_inferred", False):
+                log.info(
+                    "turn accepted with inferred status=%r: model=%r omitted 'status'",
+                    last.turn["status"], model or MODEL,
+                )
             return last.turn
         attempts += 1
+        failed.append(last)
 
     detail = last.parse_error or f"content: {(last.raw_content or '')[:400]!r}"
     if last.truncated:
         detail = f"response truncated (finish_reason=length) before producing a turn; {detail}"
+    log.warning(
+        "turn failed: model=%r produced no usable turn in %d attempt(s); %s",
+        model or MODEL, MAX_ATTEMPTS, "; ".join(_describe_failed_attempt(i, a) for i, a in enumerate(failed, 1)),
+    )
     raise RuntimeError(
         f"Model {model or MODEL!r} produced no usable turn in {MAX_ATTEMPTS} attempt(s) -- {detail}"
     )
+
+
+def _describe_failed_attempt(n: int, attempt) -> str:
+    """One attempt's failure, for the log: what the parser said, or what the
+    model returned when it never reached the parser."""
+    if attempt.parse_error:
+        why = f"parse_error={attempt.parse_error}"
+    elif attempt.truncated:
+        why = "response truncated (finish_reason=length) before producing a turn"
+    else:
+        why = f"no tool call; content={(attempt.raw_content or '')[:200]!r}"
+    return f"attempt {n}: {why}"
 
 
 _UNSET = object()  # distinguishes "no override given" from an explicit None
